@@ -1,0 +1,14 @@
+[Unit]
+Description=VC-UY1 Local Agent
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/npe-tech/Documents/M2 Recherche/vc-uy1/agent
+ExecStart=/usr/bin/python3 -m agent.main
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

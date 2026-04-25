@@ -1,0 +1,41 @@
+import time
+import sys
+from . import heartbeat, collector, syncer
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("VC-Agent")
+
+def main():
+    logger.info("Starting VC-Agent...")
+    
+    # 1. Startup check for power cut
+    status = heartbeat.detect_power_cut()
+    if status and status['type'] == 'power_cut':
+        logger.warning(f"Power cut detected! Downtime: {status['gap_s']}s")
+        # In a real app, send this to the server immediately
+    
+    # 2. Register once
+    machine_id = collector.get_machine_id()
+    syncer.register(machine_id)
+    
+    # 3. Main collection loop
+    try:
+        while True:
+            stats = collector.get_stats()
+            logger.info(f"Collected stats: CPU {stats['cpu_percent']}%")
+            
+            # Save heartbeat
+            heartbeat.write_heartbeat()
+            
+            # Sync with server
+            if stats['is_connected']:
+                syncer.sync_batch(machine_id, [stats])
+            
+            time.sleep(300) # 5 minutes
+    except KeyboardInterrupt:
+        logger.info("Shutting down cleanly...")
+        heartbeat.write_heartbeat(shutdown_clean=True)
+
+if __name__ == "__main__":
+    main()
