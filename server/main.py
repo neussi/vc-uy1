@@ -72,10 +72,12 @@ def get_live_stats(db: Session = Depends(get_db)):
     return {"active_machines": count}
 
 # Serve frontend
-dist_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dist_path = os.path.join(BASE_DIR, "frontend", "dist")
+
 if os.path.exists(dist_path):
     app.mount("/", StaticFiles(directory=dist_path, html=True), name="frontend")
 else:
     @app.get("/")
     def read_root():
-        return {"message": "VC-UY1 API Running. Build frontend to see UI."}
+        return {"message": "VC-UY1 API Running. Front-end build not found at " + dist_path}
