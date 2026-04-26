@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="100%" height="100%">
+    <defs>
+        <linearGradient id="linGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ccff00" />
+            <stop offset="100%" stop-color="#00ffcc" />
+        </linearGradient>
+    </defs>
+    <rect width="600" height="300" rx="15" fill="#0c0c0c" stroke="#333" stroke-width="2"/>
+    
+    <!-- Top Bar -->
+    <rect x="0" y="0" width="600" height="30" fill="#2d2d2d" rx="15"/>
+    <text x="300" y="20" font-family="monospace" font-size="12" fill="#aaaaaa" text-anchor="middle">root@vc-node:~</text>
+
+    <!-- Terminal Content -->
+    <g transform="translate(30, 70)" font-family="monospace" font-size="14">
+        <text x="0" y="0" fill="#27c93f">root@vc-node:~#</text>
+        <text x="140" y="0" fill="#ffffff">wget https://vc-uy1/vc-agent-linux</text>
+        
+        <text x="0" y="30" fill="#aaaaaa">Resolving vc-uy1... 167.86.88.92</text>
+        <text x="0" y="55" fill="#aaaaaa">Connecting to 167.86.88.92... connected.</text>
+        <text x="0" y="80" fill="#aaaaaa">HTTP request sent, awaiting response... 200 OK</text>
+        <text x="0" y="105" fill="#aaaaaa">Saving to: 'vc-agent-linux'</text>
+        
+        <text x="0" y="140" fill="#27c93f">root@vc-node:~#</text>
+        <text x="140" y="140" fill="#ffffff">chmod +x vc-agent-linux &amp;&amp; ./vc-agent-linux</text>
+        
+        <text x="0" y="175" fill="url(#linGlow)" font-weight="bold">[System] Agent successfully injected. Network active.</text>
+        
+        <rect x="140" y="190" width="10" height="20" fill="#ccff00">
+            <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite" />
+        </rect>
+    </g>
+</svg>

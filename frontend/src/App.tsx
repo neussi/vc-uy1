@@ -26,7 +26,9 @@ function Nav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 100 }}
     >
-      <Link to="/" className="logo">VC-UY1</Link>
+      <Link to="/" className="logo">
+        <img src="/logo.svg" alt="VC-UY1 Logo" style={{ height: '35px', filter: 'drop-shadow(0 0 8px rgba(204, 255, 0, 0.4))' }} />
+      </Link>
       <div className="nav-links">
         <NavLink to="/about" active={location.pathname === '/about'} icon={<Info size={16} />}>About</NavLink>
         <NavLink to="/documentation" active={location.pathname === '/documentation'} icon={<Book size={16} />}>Spec</NavLink>
@@ -128,21 +130,29 @@ function VolunteersPage() {
   return (
     <motion.section className="page-content" variants={pageVariants} initial="initial" animate="animate" exit="exit" style={{ padding: '0 60px' }}>
       <h2 className="section-title">Join the <span className="neon-text">Movement</span></h2>
+      <p style={{ marginBottom: 30, color: '#aaa' }}>Help our academic research by donating small amounts of your computer's spare time. Our agents are completely secure and zero-friction.</p>
+
       <div className="guide-layout">
         <div className="guide-card card-glass">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}><span style={{ fontSize: 32 }}>🪟</span> <h3>Windows Deployment</h3></div>
-          <p style={{ marginTop: 15, color: '#999' }}>Download our specialized installer to start contributing. Optimized for Windows 10/11.</p>
-          <button className="btn-wow" style={{ marginTop: 20, width: '100%' }}>Fetch Installer (.exe)</button>
-          <div className="img-container" style={{ marginTop: 20 }}><img src="/windows_install_step1_1777155391224.png" alt="Setup" style={{ width: '100%', borderRadius: 12 }} /></div>
+          <p style={{ marginTop: 15, color: '#999' }}>Download our specialized executable. Optimized for Windows 10/11. No installation required.</p>
+          <a href="/vc-agent-windows.exe" download className="btn-wow" style={{ marginTop: 20, width: '100%', display: 'inline-block', textAlign: 'center' }}>Fetch Executable (.exe)</a>
+          <div className="img-container" style={{ marginTop: 20 }}>
+            <img src="/windows_diag.svg" alt="Setup" style={{ width: '100%', borderRadius: 12 }} />
+          </div>
         </div>
         <div className="guide-card card-glass">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}><span style={{ fontSize: 32 }}>🐧</span> <h3>Linux Terminal Service</h3></div>
-          <p style={{ marginTop: 15, color: '#999' }}>Deploy as a background systemd service for maximum uptime and zero interference.</p>
+          <p style={{ marginTop: 15, color: '#999' }}>Deploy cleanly as an executable on Ubuntu/Debian arrays.</p>
           <div className="code-block" style={{ marginTop: 20, background: '#000', padding: 20, borderRadius: 12, fontSize: 13, border: '1px solid #333' }}>
-            <code style={{ color: 'var(--accent-neon)' }}>$ sudo dpkg -i vc-agent.deb</code><br />
-            <code style={{ color: 'var(--accent-neon)' }}>$ sudo systemctl enable --now vc-agent</code>
+            <code style={{ color: 'var(--accent-neon)' }}>$ wget http://vc-uy1.npe-techs.com:9090/vc-agent-linux</code><br />
+            <code style={{ color: 'var(--accent-neon)' }}>$ chmod +x vc-agent-linux</code><br />
+            <code style={{ color: 'var(--accent-neon)' }}>$ ./vc-agent-linux</code>
           </div>
-          <div className="img-container" style={{ marginTop: 20 }}><img src="/linux_install_terminal_1777155416748.png" alt="Terminal" style={{ width: '100%', borderRadius: 12 }} /></div>
+          <a href="/vc-agent-linux" download className="btn-outline" style={{ marginTop: 15, display: 'inline-block', width: '100%', textAlign: 'center' }}>Download Binary directly</a>
+          <div className="img-container" style={{ marginTop: 20 }}>
+            <img src="/linux_diag.svg" alt="Terminal" style={{ width: '100%', borderRadius: 12 }} />
+          </div>
         </div>
       </div>
     </motion.section>
