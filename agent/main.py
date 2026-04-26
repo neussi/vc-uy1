@@ -127,7 +127,7 @@ def main():
                 stats = collector.get_stats(is_task_active=is_workload_running, aggregate=True)
                 
                 # Detect transition (Instant response)
-                current_power_status = stats['power_plugged']
+                current_power_status = stats['plugged']
                 if last_power_status is not None and current_power_status != last_power_status:
                     event_type = "to_ac" if current_power_status else "to_battery"
                     logger.info(f"Power transition: {event_type}")
