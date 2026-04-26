@@ -1,6 +1,6 @@
 (['/home/npe-tech/Documents/M2 Recherche/vc-uy1/agent/main.py'],
  ['/home/npe-tech/Documents/M2 Recherche/vc-uy1/agent'],
- [],
+ ['certifi', 'certifi.__main__', 'certifi.core'],
  [('/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/_pyinstaller_hooks_contrib/stdhooks',
    -1000),
@@ -14,7 +14,50 @@
  {},
  0,
  [],
- [],
+ [('certifi-2026.4.22.dist-info/INSTALLER',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/INSTALLER',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/METADATA',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/METADATA',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/RECORD',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/RECORD',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/WHEEL',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/WHEEL',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/licenses/LICENSE',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/licenses/LICENSE',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/top_level.txt',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/top_level.txt',
+   'DATA'),
+  ('certifi/__init__.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__init__.py',
+   'DATA'),
+  ('certifi/__main__.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__main__.py',
+   'DATA'),
+  ('certifi/cacert.pem',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/cacert.pem',
+   'DATA'),
+  ('certifi/core.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/core.py',
+   'DATA'),
+  ('certifi/py.typed',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
+   'DATA')],
  '3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]',
  [('pyi_rth_inspect',
    '/home/npe-tech/Documents/M2 '
@@ -1008,9 +1051,21 @@
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/_distutils_hack/override.py',
    'PYMODULE'),
   ('__future__', '/usr/lib/python3.12/__future__.py', 'PYMODULE'),
-  ('tracemalloc', '/usr/lib/python3.12/tracemalloc.py', 'PYMODULE'),
+  ('certifi.core',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/core.py',
+   'PYMODULE'),
+  ('certifi.__main__',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__main__.py',
+   'PYMODULE'),
+  ('certifi',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__init__.py',
+   'PYMODULE'),
   ('_py_abc', '/usr/lib/python3.12/_py_abc.py', 'PYMODULE'),
   ('stringprep', '/usr/lib/python3.12/stringprep.py', 'PYMODULE'),
+  ('tracemalloc', '/usr/lib/python3.12/tracemalloc.py', 'PYMODULE'),
   ('threading', '/usr/lib/python3.12/threading.py', 'PYMODULE'),
   ('_threading_local', '/usr/lib/python3.12/_threading_local.py', 'PYMODULE'),
   ('logging', '/usr/lib/python3.12/logging/__init__.py', 'PYMODULE'),
@@ -1236,14 +1291,6 @@
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/requests/certs.py',
    'PYMODULE'),
-  ('certifi',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__init__.py',
-   'PYMODULE'),
-  ('certifi.core',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/core.py',
-   'PYMODULE'),
   ('requests.packages',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/requests/packages.py',
@@ -1422,17 +1469,65 @@
   ('libreadline.so.8', '/lib/x86_64-linux-gnu/libreadline.so.8', 'BINARY')],
  [],
  [],
- [('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
+ [('certifi-2026.4.22.dist-info/INSTALLER',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/INSTALLER',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/METADATA',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/METADATA',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/RECORD',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/RECORD',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/WHEEL',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/WHEEL',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/licenses/LICENSE',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/licenses/LICENSE',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/top_level.txt',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/top_level.txt',
+   'DATA'),
+  ('certifi/__init__.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__init__.py',
+   'DATA'),
+  ('certifi/__main__.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__main__.py',
+   'DATA'),
+  ('certifi/cacert.pem',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/cacert.pem',
+   'DATA'),
+  ('certifi/core.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/core.py',
+   'DATA'),
+  ('certifi/py.typed',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
-   'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
    '/home/npe-tech/Documents/M2 '
@@ -1441,10 +1536,6 @@
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
-   'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/WHEEL',
    '/home/npe-tech/Documents/M2 '
@@ -1455,46 +1546,25 @@
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/jaraco/text/Lorem '
    'ipsum.txt',
    'DATA'),
-  ('certifi/cacert.pem',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/cacert.pem',
-   'DATA'),
-  ('certifi/py.typed',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
-   'DATA'),
   ('base_library.zip',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/agent/build/vc-agent-linux/base_library.zip',
    'DATA')],
- [('_collections_abc', '/usr/lib/python3.12/_collections_abc.py', 'PYMODULE'),
+ [('abc', '/usr/lib/python3.12/abc.py', 'PYMODULE'),
   ('ntpath', '/usr/lib/python3.12/ntpath.py', 'PYMODULE'),
-  ('stat', '/usr/lib/python3.12/stat.py', 'PYMODULE'),
   ('linecache', '/usr/lib/python3.12/linecache.py', 'PYMODULE'),
-  ('enum', '/usr/lib/python3.12/enum.py', 'PYMODULE'),
-  ('collections.abc', '/usr/lib/python3.12/collections/abc.py', 'PYMODULE'),
-  ('collections', '/usr/lib/python3.12/collections/__init__.py', 'PYMODULE'),
-  ('keyword', '/usr/lib/python3.12/keyword.py', 'PYMODULE'),
+  ('codecs', '/usr/lib/python3.12/codecs.py', 'PYMODULE'),
+  ('sre_parse', '/usr/lib/python3.12/sre_parse.py', 'PYMODULE'),
   ('re._parser', '/usr/lib/python3.12/re/_parser.py', 'PYMODULE'),
   ('re._constants', '/usr/lib/python3.12/re/_constants.py', 'PYMODULE'),
   ('re._compiler', '/usr/lib/python3.12/re/_compiler.py', 'PYMODULE'),
   ('re._casefix', '/usr/lib/python3.12/re/_casefix.py', 'PYMODULE'),
   ('re', '/usr/lib/python3.12/re/__init__.py', 'PYMODULE'),
-  ('posixpath', '/usr/lib/python3.12/posixpath.py', 'PYMODULE'),
-  ('locale', '/usr/lib/python3.12/locale.py', 'PYMODULE'),
-  ('warnings', '/usr/lib/python3.12/warnings.py', 'PYMODULE'),
-  ('functools', '/usr/lib/python3.12/functools.py', 'PYMODULE'),
-  ('sre_constants', '/usr/lib/python3.12/sre_constants.py', 'PYMODULE'),
   ('copyreg', '/usr/lib/python3.12/copyreg.py', 'PYMODULE'),
-  ('heapq', '/usr/lib/python3.12/heapq.py', 'PYMODULE'),
-  ('io', '/usr/lib/python3.12/io.py', 'PYMODULE'),
-  ('sre_parse', '/usr/lib/python3.12/sre_parse.py', 'PYMODULE'),
-  ('genericpath', '/usr/lib/python3.12/genericpath.py', 'PYMODULE'),
-  ('traceback', '/usr/lib/python3.12/traceback.py', 'PYMODULE'),
   ('_weakrefset', '/usr/lib/python3.12/_weakrefset.py', 'PYMODULE'),
-  ('abc', '/usr/lib/python3.12/abc.py', 'PYMODULE'),
   ('reprlib', '/usr/lib/python3.12/reprlib.py', 'PYMODULE'),
-  ('codecs', '/usr/lib/python3.12/codecs.py', 'PYMODULE'),
+  ('locale', '/usr/lib/python3.12/locale.py', 'PYMODULE'),
+  ('_collections_abc', '/usr/lib/python3.12/_collections_abc.py', 'PYMODULE'),
   ('encodings.zlib_codec',
    '/usr/lib/python3.12/encodings/zlib_codec.py',
    'PYMODULE'),
@@ -1725,8 +1795,21 @@
   ('encodings.ascii', '/usr/lib/python3.12/encodings/ascii.py', 'PYMODULE'),
   ('encodings.aliases', '/usr/lib/python3.12/encodings/aliases.py', 'PYMODULE'),
   ('encodings', '/usr/lib/python3.12/encodings/__init__.py', 'PYMODULE'),
+  ('traceback', '/usr/lib/python3.12/traceback.py', 'PYMODULE'),
+  ('keyword', '/usr/lib/python3.12/keyword.py', 'PYMODULE'),
+  ('collections.abc', '/usr/lib/python3.12/collections/abc.py', 'PYMODULE'),
+  ('collections', '/usr/lib/python3.12/collections/__init__.py', 'PYMODULE'),
   ('operator', '/usr/lib/python3.12/operator.py', 'PYMODULE'),
+  ('genericpath', '/usr/lib/python3.12/genericpath.py', 'PYMODULE'),
   ('sre_compile', '/usr/lib/python3.12/sre_compile.py', 'PYMODULE'),
+  ('posixpath', '/usr/lib/python3.12/posixpath.py', 'PYMODULE'),
+  ('stat', '/usr/lib/python3.12/stat.py', 'PYMODULE'),
   ('weakref', '/usr/lib/python3.12/weakref.py', 'PYMODULE'),
+  ('sre_constants', '/usr/lib/python3.12/sre_constants.py', 'PYMODULE'),
+  ('heapq', '/usr/lib/python3.12/heapq.py', 'PYMODULE'),
+  ('io', '/usr/lib/python3.12/io.py', 'PYMODULE'),
+  ('functools', '/usr/lib/python3.12/functools.py', 'PYMODULE'),
   ('types', '/usr/lib/python3.12/types.py', 'PYMODULE'),
+  ('enum', '/usr/lib/python3.12/enum.py', 'PYMODULE'),
+  ('warnings', '/usr/lib/python3.12/warnings.py', 'PYMODULE'),
   ('os', '/usr/lib/python3.12/os.py', 'PYMODULE')])

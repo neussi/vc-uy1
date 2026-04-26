@@ -93,6 +93,10 @@
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__init__.py',
    'PYMODULE'),
+  ('certifi.__main__',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__main__.py',
+   'PYMODULE'),
   ('certifi.core',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/core.py',

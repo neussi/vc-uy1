@@ -155,6 +155,58 @@
   ('libffi.so.8', '/lib/x86_64-linux-gnu/libffi.so.8', 'BINARY'),
   ('libtinfo.so.6', '/lib/x86_64-linux-gnu/libtinfo.so.6', 'BINARY'),
   ('libreadline.so.8', '/lib/x86_64-linux-gnu/libreadline.so.8', 'BINARY'),
+  ('certifi-2026.4.22.dist-info/INSTALLER',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/INSTALLER',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/METADATA',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/METADATA',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/RECORD',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/RECORD',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/WHEEL',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/WHEEL',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/licenses/LICENSE',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/licenses/LICENSE',
+   'DATA'),
+  ('certifi-2026.4.22.dist-info/top_level.txt',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi-2026.4.22.dist-info/top_level.txt',
+   'DATA'),
+  ('certifi/__init__.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__init__.py',
+   'DATA'),
+  ('certifi/__main__.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/__main__.py',
+   'DATA'),
+  ('certifi/cacert.pem',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/cacert.pem',
+   'DATA'),
+  ('certifi/core.py',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/core.py',
+   'DATA'),
+  ('certifi/py.typed',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
+   'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
@@ -163,10 +215,6 @@
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
    'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
-   'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
@@ -174,10 +222,6 @@
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
-   'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/WHEEL',
    '/home/npe-tech/Documents/M2 '
@@ -188,14 +232,6 @@
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/jaraco/text/Lorem '
    'ipsum.txt',
    'DATA'),
-  ('certifi/cacert.pem',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/cacert.pem',
-   'DATA'),
-  ('certifi/py.typed',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
-   'DATA'),
   ('base_library.zip',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/agent/build/vc-agent-linux/base_library.zip',
@@ -203,7 +239,7 @@
  [],
  False,
  False,
- 1777200108,
+ 1777200728,
  [('run',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run',

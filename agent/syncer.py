@@ -3,10 +3,18 @@ import logging
 import json
 import collector
 import datetime
+import os
+import sys
+import certifi
+
+# Fix for PyInstaller one-file bundled execution certificate resolution
+if getattr(sys, 'frozen', False):
+    # This ensures requests finds the CA bundle inside the temp MEI directory
+    os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
 
 logger = logging.getLogger("VC-Syncer")
 
-SERVER_URL = "https://vc-uy1.npe-techs.com" # Should be configurable
+SERVER_URL = "https://vc-uy1.npe-techs.com"
 
 def register(machine_id):
     """Register the machine with the server if not already done."""

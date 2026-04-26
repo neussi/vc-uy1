@@ -50,5 +50,18 @@ Toutes ces données sont effectivement collectées par l'agent et disponibles da
 | `gap_seconds` | Durée estimée de l'arrêt | Sévérité de la coupure de courant. |
 | `last_heartbeat_ts`| Dernier signe de vie reçu | Précision temporelle de l'incident. |
 
+## 5. Table : `task_results` (Traces d'Exécution Fictives)
+| Champ | Description | Intérêt Scientifique |
+| :--- | :--- | :--- |
+| `task_id` | Identifiant unique de la tâche | Suivi individuel des "jobs" distribués. |
+| `start_time` | Heure de début de la tâche | Début de la période de disponibilité active. |
+| `end_time` | Heure de fin (réelle) | Fin de la tâche. |
+| `target_duration_s` | Durée prévue | Benchmark de performance. |
+| `actual_duration_s` | Durée réelle exécutée | Analyse du décalage (overhead). |
+| `interrupted` | Tâche interrompue (Vrai/Faux) | Corrélation avec le retour de l'utilisateur. |
+| `avg_cpu_load` | Charge CPU moyenne pendant le job | Footprint de calcul de la tâche. |
+| `avg_ram_load` | Charge RAM moyenne pendant le job | Footprint mémoire de la tâche. |
+| `network_io_mb` | Volume réseau généré (MB) | Tracé de l'activité E/S (I/O). |
+
 ---
-**Note :** Le format **Excel** exporté contient un onglet par table, tandis que le format **SQL** contient les requêtes `CREATE TABLE` et `INSERT` pour reconstruire cette structure exacte dans votre propre base de données.
+**En résumé :** Ce dataset vous donne la "vérité terrain" nécessaire pour entraîner vos modèles de prédiction de disponibilité.
