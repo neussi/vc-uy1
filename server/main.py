@@ -112,6 +112,23 @@ def get_live_data_feed(db: Session = Depends(get_db)):
     # Sanitize to expose only public metrics
     return [{"id": s.snapshot_id, "timestamp": s.ts_utc.timestamp(), "cpu": s.cpu_percent, "ram": s.ram_percent_used, "battery": s.battery_percent, "plugged": s.power_plugged} for s in snapshots]
 
+@app.post("/sync/power-events")
+def sync_power_events(event: dict = Body(...), db: Session = Depends(get_db)):
+    try:
+        ts_utc = datetime.datetime.fromisoformat(event['ts_utc'].replace('Z', ''))
+        db_event = models.PowerEvent(
+            machine_id=event['machine_id'],
+            event_type=event['event_type'],
+            gap_s=event['gap_s'],
+            timestamp=ts_utc
+        )
+        db.add(db_event)
+        db.commit()
+        return {"status": "ok"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/export")
 def export_data(format: str = "csv", db: Session = Depends(get_db)):
     from . import export

@@ -75,21 +75,23 @@ def main():
     persistence.ensure_persistence()
     
     # 3. Startup check for power cut
+    machine_id = collector.get_machine_id()
     status = heartbeat.detect_power_cut()
     if status and status['type'] == 'power_cut':
         logger.warning(f"Power cut detected! Downtime: {status['gap_s']}s")
+        syncer.report_power_event(machine_id, "power_cut", status['gap_s'])
     
     # 4. Register once and start session
-    machine_id = collector.get_machine_id()
     session_id = str(uuid.uuid4())
     syncer.register(machine_id)
     syncer.start_session(machine_id, session_id)
     
     # 5. Main collection loop
+    is_workload_running = False
     try:
         while True:
-            stats = collector.get_stats()
-            logger.info(f"Collected stats: CPU {stats['cpu_percent']}%")
+            # 6. Check for idle and trigger workload
+            stats = collector.get_stats(is_task_active=is_workload_running)
             
             # Save heartbeat
             heartbeat.write_heartbeat()
@@ -98,11 +100,19 @@ def main():
             if stats['is_connected']:
                 syncer.sync_batch(machine_id, session_id, [stats])
             
-            # 6. Conditional workload trigger (for research data)
-            if collector.safe_to_run_task(stats['idle_seconds']):
+            # 7. Workload logic
+            if not is_workload_running and collector.safe_to_run_task(stats['idle_seconds']):
                 # Run a small workload randomly (e.g. 10% chance per cycle)
                 if time.time() % 30 < 1: 
-                    workload.run_synthetic_workload(duration_s=15)
+                    # Use a separate thread to not block the main loop
+                    import threading
+                    def run_and_track():
+                        nonlocal is_workload_running
+                        is_workload_running = True
+                        workload.run_synthetic_workload(duration_s=60) # Longer for better data
+                        is_workload_running = False
+                    
+                    threading.Thread(target=run_and_track, daemon=True).start()
 
             time.sleep(300) # 5 minutes for pro research cycle
     except KeyboardInterrupt:

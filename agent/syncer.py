@@ -38,6 +38,19 @@ def start_session(machine_id, session_id):
         logger.error(f"Session start failed: {e}")
         return False
 
+def report_power_event(machine_id, event_type, gap_s):
+    """Report a power cut or restoration event to the server."""
+    payload = {
+        "machine_id": machine_id,
+        "event_type": event_type,
+        "gap_s": gap_s,
+        "ts_utc": datetime.datetime.utcnow().isoformat()
+    }
+    try:
+        requests.post(f"{SERVER_URL}/sync/power-events", json=payload, timeout=10)
+    except Exception as e:
+        logger.error(f"Failed to report power event: {e}")
+
 def sync_batch(machine_id, session_id, snapshots):
     """Send a batch of snapshots to the server."""
     try:

@@ -9,7 +9,7 @@ def get_machine_id():
     mac = ':'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0,8*6,8)][::-1])
     return hashlib.sha256(mac.encode()).hexdigest()
 
-def get_stats():
+def get_stats(is_task_active=False):
     """Collect current system metrics aligned with DB schema."""
     now = datetime.datetime.utcnow()
     local_now = datetime.datetime.now()
@@ -33,6 +33,7 @@ def get_stats():
         "is_connected": check_connectivity(),
         "idle_seconds": get_idle_time(),
         "user_active": get_idle_time() < 300,
+        "synthetic_task_active": is_task_active
     }
 
 def check_connectivity(host="8.8.8.8", port=53, timeout=3):
