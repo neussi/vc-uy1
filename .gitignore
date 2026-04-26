@@ -1,0 +1,23 @@
+# Environments
+venv*/
+.env
+__pycache__/
+*.pyc
+
+# Frontend
+frontend/node_modules
+frontend/dist
+.DS_Store
+
+# PyInstaller
+agent/build/
+agent/dist/
+*.spec
+
+# Database
+server/*.db
+server/*.db-journal
+
+# Agent logs
+*.log
+heartbeat.json

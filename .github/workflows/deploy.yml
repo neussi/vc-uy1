@@ -21,29 +21,36 @@ jobs:
           npm install
           npm run build
 
-      - name: Deploy to VPS
+      - name: Sync Code via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
+          script_stop: true
+          command_timeout: 10m
           script: |
             mkdir -p /var/www/vc-uy1
             cd /var/www/vc-uy1
-            # In a real scenario, we'd use git pull or rsync
-            # For now, let's assume this script handles the update
-            # (Note: Files need to be transferred first)
+            if [ ! -d .git ]; then
+              git clone https://github.com/neussi/vc-uy1.git .
+            else
+              git fetch --all
+              git reset --hard origin/main
+            fi
 
-      - name: Transfer files
+      - name: Overlay Distribution
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          source: "."
-          target: "/var/www/vc-uy1"
+          timeout: 5m
+          source: "frontend/dist"
+          target: "/var/www/vc-uy1/frontend"
+          strip_components: 1
 
-      - name: Restart Server
+      - name: Finalize Infrastructure
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -51,18 +58,9 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/vc-uy1
-            # Enable modules & Set priority
-            a2enmod proxy proxy_http rewrite
-            a2dissite 000-default || true
-            ufw allow 9090/tcp || true
-            # Link config
-            cp apache_vc_uy1.conf /etc/apache2/sites-available/vc-uy1.conf
-            a2ensite vc-uy1
-            systemctl reload apache2
-            sudo systemctl reload apache2
+            # Ensure proper permissions
             chmod +x start_server.sh
-            ./start_server.sh &
-            
-            # Run diagnostics and save to file for remote retrieval
-            chmod +x diagnose.sh
-            ./diagnose.sh > diag_result.txt 2>&1
+            # Reload Apache for SSL/Reverse Proxy
+            systemctl reload apache2
+            # Restart Application
+            bash start_server.sh &
