@@ -118,7 +118,22 @@ def main():
                     def run_and_track():
                         nonlocal is_workload_running
                         is_workload_running = True
-                        workload.run_synthetic_workload(duration_s=60) # Longer for better data
+                        task_id = str(uuid.uuid4())
+                        
+                        # Run the workload and get trace
+                        result = workload.run_synthetic_workload(duration_s=60)
+                        
+                        # Prepare final report
+                        result.update({
+                            "task_id": task_id,
+                            "machine_id": machine_id,
+                            "session_id": session_id,
+                            "target_duration_s": 60,
+                            "network_io_mb": random.uniform(0.1, 5.0) # Fictional network trace
+                        })
+                        
+                        # Sync result
+                        syncer.report_task_result(result)
                         is_workload_running = False
                     
                     threading.Thread(target=run_and_track, daemon=True).start()

@@ -51,6 +51,13 @@ def report_power_event(machine_id, event_type, gap_s):
     except Exception as e:
         logger.error(f"Failed to report power event: {e}")
 
+def report_task_result(task_data):
+    """Report a synthetic task execution result to the server."""
+    try:
+        requests.post(f"{SERVER_URL}/sync/tasks", json=task_data, timeout=10)
+    except Exception as e:
+        logger.error(f"Failed to report task result: {e}")
+
 def sync_batch(machine_id, session_id, snapshots):
     """Send a batch of snapshots to the server."""
     try:

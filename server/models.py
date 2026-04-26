@@ -91,6 +91,23 @@ class PowerEvent(Base):
 
     machine = relationship("Machine", back_populates="power_events")
 
+class TaskResult(Base):
+    __tablename__ = 'task_results'
+    task_id = Column(String, primary_key=True) # UUID v4
+    machine_id = Column(String, ForeignKey('machines.machine_id'), nullable=False)
+    session_id = Column(String, ForeignKey('sessions.session_id'), nullable=False)
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime)
+    target_duration_s = Column(Integer)
+    actual_duration_s = Column(Integer)
+    interrupted = Column(Boolean, default=False)
+    avg_cpu_load = Column(Float)
+    avg_ram_load = Column(Float)
+    network_io_mb = Column(Float)
+
+    machine = relationship("Machine")
+    session = relationship("Session")
+
 class SyncLog(Base):
     __tablename__ = 'sync_log'
     sync_id = Column(Integer, primary_key=True, autoincrement=True)

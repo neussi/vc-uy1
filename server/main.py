@@ -140,7 +140,31 @@ def export_data(format: str = "csv", db: Session = Depends(get_db)):
         headers={"Content-Disposition": f"attachment; filename=vc_uy1_dataset_{format}.zip"}
     )
 
-@app.get("/stats/detailed")
+@app.post("/sync/tasks")
+def sync_task_results(task: dict = Body(...), db: Session = Depends(get_db)):
+    try:
+        start_ts = datetime.datetime.fromisoformat(task['start_time'].replace('Z', ''))
+        end_ts = datetime.datetime.fromisoformat(task['end_time'].replace('Z', '')) if task.get('end_time') else None
+        
+        db_task = models.TaskResult(
+            task_id=task['task_id'],
+            machine_id=task['machine_id'],
+            session_id=task['session_id'],
+            start_time=start_ts,
+            end_time=end_ts,
+            target_duration_s=task['target_duration_s'],
+            actual_duration_s=task['actual_duration_s'],
+            interrupted=task['interrupted'],
+            avg_cpu_load=task['avg_cpu_load'],
+            avg_ram_load=task['avg_ram_load'],
+            network_io_mb=task.get('network_io_mb', 0)
+        )
+        db.add(db_task)
+        db.commit()
+        return {"status": "ok"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 def get_detailed_stats(db: Session = Depends(get_db)):
     # OS Distribution
     os_dist = db.query(models.Machine.os, func.count(models.Machine.machine_id)).group_by(models.Machine.os).all()
