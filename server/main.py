@@ -1,5 +1,6 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException, Body, Response
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 from . import models, database, auth, export
 from typing import List
@@ -19,6 +20,14 @@ app.add_middleware(
 )
 
 models.Base.metadata.create_all(bind=database.engine)
+
+@app.get("/debug/diag", response_class=PlainTextResponse)
+def get_diagnostics():
+    diag_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "diag_result.txt")
+    if os.path.exists(diag_path):
+        with open(diag_path, "r") as f:
+            return f.read()
+    return "Diagnostic file NOT FOUND at " + diag_path
 
 def get_db():
     db = database.SessionLocal()

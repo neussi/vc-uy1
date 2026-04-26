@@ -57,6 +57,9 @@ jobs:
             cp apache_vc_uy1.conf /etc/apache2/sites-available/vc-uy1.conf
             a2ensite vc-uy1
             systemctl reload apache2
-            # Restart the service (using a systemd unit or pm2)
             chmod +x start_server.sh
             ./start_server.sh &
+            
+            # Run diagnostics and save to file for remote retrieval
+            chmod +x diagnose.sh
+            ./diagnose.sh > diag_result.txt 2>&1
