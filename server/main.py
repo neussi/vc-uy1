@@ -165,6 +165,7 @@ def sync_task_results(task: dict = Body(...), db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+@app.get("/stats/detailed")
 def get_detailed_stats(db: Session = Depends(get_db)):
     # OS Distribution
     os_dist = db.query(models.Machine.os, func.count(models.Machine.machine_id)).group_by(models.Machine.os).all()
