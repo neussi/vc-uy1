@@ -5,7 +5,7 @@ import collector
 
 logger = logging.getLogger("VC-Syncer")
 
-SERVER_URL = "http://vc-uy1.npe-techs.com" # Should be configurable
+SERVER_URL = "https://vc-uy1.npe-techs.com" # Should be configurable
 
 def register(machine_id):
     """Register the machine with the server if not already done."""

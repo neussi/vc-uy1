@@ -146,15 +146,15 @@
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/psutil/_psutil_linux.abi3.so',
    'EXTENSION'),
-  ('libexpat.so.1', '/lib/x86_64-linux-gnu/libexpat.so.1', 'BINARY'),
   ('libz.so.1', '/lib/x86_64-linux-gnu/libz.so.1', 'BINARY'),
+  ('libexpat.so.1', '/lib/x86_64-linux-gnu/libexpat.so.1', 'BINARY'),
   ('libssl.so.3', '/lib/x86_64-linux-gnu/libssl.so.3', 'BINARY'),
   ('libcrypto.so.3', '/lib/x86_64-linux-gnu/libcrypto.so.3', 'BINARY'),
   ('liblzma.so.5', '/lib/x86_64-linux-gnu/liblzma.so.5', 'BINARY'),
   ('libbz2.so.1.0', '/lib/x86_64-linux-gnu/libbz2.so.1.0', 'BINARY'),
   ('libffi.so.8', '/lib/x86_64-linux-gnu/libffi.so.8', 'BINARY'),
-  ('libreadline.so.8', '/lib/x86_64-linux-gnu/libreadline.so.8', 'BINARY'),
   ('libtinfo.so.6', '/lib/x86_64-linux-gnu/libtinfo.so.6', 'BINARY'),
+  ('libreadline.so.8', '/lib/x86_64-linux-gnu/libreadline.so.8', 'BINARY'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/WHEEL',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/WHEEL',
@@ -166,6 +166,10 @@
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
    '/home/npe-tech/Documents/M2 '
@@ -179,22 +183,18 @@
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
    'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
-   'DATA'),
   ('setuptools/_vendor/jaraco/text/Lorem ipsum.txt',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/jaraco/text/Lorem '
    'ipsum.txt',
    'DATA'),
-  ('certifi/py.typed',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
-   'DATA'),
   ('certifi/cacert.pem',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/cacert.pem',
+   'DATA'),
+  ('certifi/py.typed',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
    'DATA'),
   ('base_library.zip',
    '/home/npe-tech/Documents/M2 '
@@ -203,7 +203,7 @@
  [],
  False,
  False,
- 1777195935,
+ 1777196199,
  [('run',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run',
