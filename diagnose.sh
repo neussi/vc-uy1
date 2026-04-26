@@ -2,14 +2,17 @@
 echo "--- VC-UY1 DIAGNOSTIC REPORT ---"
 echo "Date: $(date)"
 
-echo "1. Checking if port 76123 is listening..."
-netstat -tulpn | grep 76123
+echo "1. Checking all listening ports..."
+ss -tulpn
 
-echo "2. Checking for running gunicorn processes..."
-ps aux | grep gunicorn | grep -v grep
+echo "2. Checking who is on port 80..."
+lsof -i :80
 
-echo "3. Testing local connectivity to backend..."
-curl -I http://localhost:76123
+echo "3. Checking Apache port configuration..."
+grep -r "Listen" /etc/apache2/
+
+echo "4. Checking for Traefik or Docker..."
+ps aux | grep -E "traefik|docker" | grep -v grep
 
 echo "4. Checking server logs..."
 tail -n 20 server/server.log
