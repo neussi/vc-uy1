@@ -326,7 +326,7 @@ function App() {
         </main>
         <footer className="footer-premium">
           <div className="footer-line" />
-          <p>© 2026 UC-UY1 Laboratory - Advancing Frugal Distributed Computing</p>
+          <p>© 2026 UC-UY1 Laboratory - Advancing Frugal Distributed Computing  By Npe-Techs. </p>
         </footer>
       </div>
     </Router>
