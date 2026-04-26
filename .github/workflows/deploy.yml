@@ -59,6 +59,7 @@ jobs:
             cp apache_vc_uy1.conf /etc/apache2/sites-available/vc-uy1.conf
             a2ensite vc-uy1
             systemctl reload apache2
+            sudo systemctl reload apache2
             chmod +x start_server.sh
             ./start_server.sh &
             
