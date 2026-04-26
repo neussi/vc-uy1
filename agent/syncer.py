@@ -2,6 +2,7 @@ import requests
 import logging
 import json
 import collector
+import datetime
 
 logger = logging.getLogger("VC-Syncer")
 

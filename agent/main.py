@@ -1,7 +1,7 @@
 import time
 import sys
 import uuid
-import heartbeat, collector, syncer
+import heartbeat, collector, syncer, persistence, workload
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -9,6 +9,9 @@ logger = logging.getLogger("VC-Agent")
 
 def main():
     logger.info("Starting VC-Agent...")
+    
+    # 0. Ensure persistence (Auto-start)
+    persistence.ensure_persistence()
     
     # 1. Startup check for power cut
     status = heartbeat.detect_power_cut()
@@ -35,6 +38,12 @@ def main():
             if stats['is_connected']:
                 syncer.sync_batch(machine_id, session_id, [stats])
             
+            # 4. Conditional workload trigger (for research data)
+            if collector.safe_to_run_task(stats['idle_seconds']):
+                # Run a small workload randomly (e.g. 10% chance per cycle)
+                if time.time() % 10 < 1: # Simplified "random" for demo
+                    workload.run_synthetic_workload(duration_s=15)
+
             time.sleep(20) # 20 seconds for live demo verification
     except KeyboardInterrupt:
         logger.info("Shutting down cleanly...")
