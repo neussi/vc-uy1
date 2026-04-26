@@ -44,7 +44,7 @@ def main():
                 if time.time() % 10 < 1: # Simplified "random" for demo
                     workload.run_synthetic_workload(duration_s=15)
 
-            time.sleep(20) # 20 seconds for live demo verification
+            time.sleep(300) # 300 seconds (5 minutes) for pro research cycle
     except KeyboardInterrupt:
         logger.info("Shutting down cleanly...")
         heartbeat.write_heartbeat(shutdown_clean=True)
