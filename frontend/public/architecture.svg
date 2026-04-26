@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+    <defs>
+        <linearGradient id="glowDark" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a1a1a" />
+            <stop offset="100%" stop-color="#0a0a0a" />
+        </linearGradient>
+        <radialGradient id="neonGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(204, 255, 0, 0.4)" />
+            <stop offset="100%" stop-color="rgba(0, 0, 0, 0)" />
+        </radialGradient>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ccff00" />
+        </marker>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="800" height="400" rx="20" fill="url(#glowDark)" stroke="#222" stroke-width="2"/>
+    
+    <!-- Central Hub Glow -->
+    <circle cx="400" cy="200" r="150" fill="url(#neonGlow)" />
+    
+    <!-- Central Server -->
+    <rect x="340" y="140" width="120" height="120" rx="15" fill="#111" stroke="#ccff00" stroke-width="3" />
+    <text x="400" y="200" font-family="'Inter', sans-serif" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="900">VC-UY1</text>
+    <text x="400" y="225" font-family="'Inter', sans-serif" font-size="12" fill="#aaaaaa" text-anchor="middle">Central Engine</text>
+    
+    <!-- Lines to Nodes -->
+    <polyline points="150,100 250,150 340,180" fill="none" stroke="#27c93f" stroke-width="2" marker-start="url(#arrow)" stroke-dasharray="5,5"/>
+    <polyline points="120,300 240,260 340,220" fill="none" stroke="#27c93f" stroke-width="2" marker-start="url(#arrow)" stroke-dasharray="5,5"/>
+    <polyline points="650,100 550,150 460,180" fill="none" stroke="#27c93f" stroke-width="2" marker-start="url(#arrow)" stroke-dasharray="5,5"/>
+    <polyline points="680,300 560,260 460,220" fill="none" stroke="#27c93f" stroke-width="2" marker-start="url(#arrow)" stroke-dasharray="5,5"/>
+    
+    <!-- Worker Node 1 -->
+    <rect x="50" y="50" width="100" height="80" rx="10" fill="#222" stroke="#444" stroke-width="2" />
+    <text x="100" y="90" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Node A</text>
+    <text x="100" y="110" font-family="'Inter', sans-serif" font-size="10" fill="#ccff00" text-anchor="middle">Linux (Lab)</text>
+    <circle cx="135" cy="65" r="5" fill="#27c93f" />
+
+    <!-- Worker Node 2 -->
+    <rect x="20" y="250" width="100" height="80" rx="10" fill="#222" stroke="#444" stroke-width="2" />
+    <text x="70" y="290" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Node B</text>
+    <text x="70" y="310" font-family="'Inter', sans-serif" font-size="10" fill="#ccff00" text-anchor="middle">Win (Lib)</text>
+    <circle cx="105" cy="265" r="5" fill="#27c93f" />
+
+    <!-- Worker Node 3 -->
+    <rect x="650" y="50" width="100" height="80" rx="10" fill="#222" stroke="#444" stroke-width="2" />
+    <text x="700" y="90" font-family="'Inter', sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Node C</text>
+    <text x="700" y="110" font-family="'Inter', sans-serif" font-size="10" fill="#ccff00" text-anchor="middle">Linux (Amphi)</text>
+    <circle cx="735" cy="65" r="5" fill="#27c93f" />
+
+    <!-- Worker Node 4 (Offline) -->
+    <rect x="680" y="250" width="100" height="80" rx="10" fill="#222" stroke="#ff5f56" stroke-width="2" />
+    <text x="730" y="290" font-family="'Inter', sans-serif" font-size="14" fill="#666666" text-anchor="middle">Node D</text>
+    <text x="730" y="310" font-family="'Inter', sans-serif" font-size="10" fill="#ff5f56" text-anchor="middle">Offline (Power cut)</text>
+    <circle cx="765" cy="265" r="5" fill="#ff5f56" />
+
+    <!-- Moving Packets Animation -->
+    <circle cx="0" cy="0" r="4" fill="#ccff00">
+        <animateMotion path="M 150 100 L 250 150 L 340 180" dur="2s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="4" fill="#ccff00">
+        <animateMotion path="M 120 300 L 240 260 L 340 220" dur="2.5s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="4" fill="#ccff00">
+        <animateMotion path="M 650 100 L 550 150 L 460 180" dur="1.8s" repeatCount="indefinite" />
+    </circle>
+</svg>

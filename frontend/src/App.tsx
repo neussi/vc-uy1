@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { Activity, Shield, Download, Info, Book, LogIn, Server, Cpu, Zap, ArrowRight, User, Globe, Lock } from 'lucide-react';
+import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, CheckCircle2 } from 'lucide-react';
 import './App.css';
 
 // --- ANIMATION VARIANTS ---
@@ -55,6 +56,25 @@ function NavLink({ to, children, active, icon, className = "" }: any) {
 
 // --- PAGES ---
 function LandingPage() {
+  const [liveData, setLiveData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchLiveFeed = async () => {
+      try {
+        const res = await fetch('/feed');
+        if (res.ok) {
+          const data = await res.json();
+          setLiveData(data);
+        }
+      } catch (e) {
+        console.error("Live feed offline");
+      }
+    };
+    fetchLiveFeed();
+    const interval = setInterval(fetchLiveFeed, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <motion.section className="page-content hero-section" variants={pageVariants} initial="initial" animate="animate" exit="exit">
       <div className="hero-grid">
@@ -67,22 +87,57 @@ function LandingPage() {
           </div>
         </div>
         <div className="hero-visual">
-          <motion.div className="floating-glow" animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-            <div className="visual-card card-glass pulse">
-              <Cpu size={80} className="neon-text" />
-              <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 12, opacity: 0.5 }}>INFRASTRUCTURE STATE</div>
-                <div style={{ fontSize: 24, fontWeight: 700 }}>OPTIMIZED</div>
-              </div>
-            </div>
+          <motion.div className="floating-glow" animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
+            <img src="/architecture.svg" alt="Distributed Architecture" style={{ width: '100%', borderRadius: 20, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }} />
           </motion.div>
         </div>
       </div>
-      <motion.div className="stats-strip" variants={staggerContainer} initial="initial" animate="animate">
+
+      <motion.div className="stats-strip" variants={staggerContainer} initial="initial" animate="animate" style={{ marginTop: 60 }}>
         <StatCard icon={<Server />} value="484k" label="Snapshots Collected" />
         <StatCard icon={<Zap />} value="82.4%" label="Prediction F1-Score" />
         <StatCard icon={<Shield />} value="< 8MB" label="Model Footprint" />
       </motion.div>
+
+      <div style={{ marginTop: 80 }}>
+        <h3 style={{ fontSize: 24, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}><Activity className="neon-text" /> Live Volunteer Telemetry Stream</h3>
+        <p style={{ marginBottom: 20, color: '#aaa' }}>Real-time transmission from global nodes (last 50 packets). Full access is restricted to authenticated researchers.</p>
+        <div className="card-glass" style={{ maxHeight: 400, overflowY: 'auto', padding: 0 }}>
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #333', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                <th style={{ padding: '15px 20px', color: '#888' }}>Snapshot ID</th>
+                <th style={{ padding: '15px 20px', color: '#888' }}>Timestamp</th>
+                <th style={{ padding: '15px 20px', color: '#888' }}>CPU Load</th>
+                <th style={{ padding: '15px 20px', color: '#888' }}>RAM Usaage</th>
+                <th style={{ padding: '15px 20px', color: '#888' }}>Power State</th>
+              </tr>
+            </thead>
+            <tbody>
+              {liveData.map((s, i) => (
+                <motion.tr
+                  key={s.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  style={{ borderBottom: '1px solid #222' }}
+                >
+                  <td style={{ padding: '15px 20px', fontFamily: 'monospace', color: '#ccff00' }}>#{s.id}</td>
+                  <td style={{ padding: '15px 20px', color: '#ddd' }}>{new Date(s.timestamp * 1000).toLocaleTimeString()}</td>
+                  <td style={{ padding: '15px 20px', color: '#ddd' }}>{s.cpu}%</td>
+                  <td style={{ padding: '15px 20px', color: '#ddd' }}>{s.ram}%</td>
+                  <td style={{ padding: '15px 20px' }}>
+                    {s.plugged ? <span style={{ color: '#27c93f', fontSize: 12 }}>⚡ PLUGGED</span> : <span style={{ color: '#ffbd2e', fontSize: 12 }}>🔋 {s.battery}%</span>}
+                  </td>
+                </motion.tr>
+              ))}
+              {liveData.length === 0 && (
+                <tr><td colSpan={5} style={{ padding: 40, textAlign: 'center', color: '#555' }}>Awaiting incoming streams...</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </motion.section>
   );
 }
@@ -130,30 +185,59 @@ function VolunteersPage() {
   return (
     <motion.section className="page-content" variants={pageVariants} initial="initial" animate="animate" exit="exit" style={{ padding: '0 60px' }}>
       <h2 className="section-title">Join the <span className="neon-text">Movement</span></h2>
-      <p style={{ marginBottom: 30, color: '#aaa' }}>Help our academic research by donating small amounts of your computer's spare time. Our agents are completely secure and zero-friction.</p>
+      <p style={{ marginBottom: 30, color: '#aaa', fontSize: 18, maxWidth: 800 }}>Help our academic research by donating small amounts of your computer's spare time. Follow these secure, step-by-step guides to join the grid.</p>
 
-      <div className="guide-layout">
-        <div className="guide-card card-glass">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}><span style={{ fontSize: 32 }}>🪟</span> <h3>Windows Deployment</h3></div>
-          <p style={{ marginTop: 15, color: '#999' }}>Download our specialized executable. Optimized for Windows 10/11. No installation required.</p>
-          <a href="/vc-agent-windows.exe" download className="btn-wow" style={{ marginTop: 20, width: '100%', display: 'inline-block', textAlign: 'center' }}>Fetch Executable (.exe)</a>
-          <div className="img-container" style={{ marginTop: 20 }}>
-            <img src="/windows_diag.svg" alt="Setup" style={{ width: '100%', borderRadius: 12 }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+
+        {/* WINDOWS GUIDE */}
+        <div className="guide-card card-glass" style={{ display: 'flex', gap: 40 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: 20 }}>
+              <span style={{ fontSize: 40 }}>🪟</span>
+              <h3>Windows Deployment <span className="neon-text">(Recommended)</span></h3>
+            </div>
+
+            <div className="step-list">
+              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 1:</strong> Téléchargez l'exécutable natif compilé. Aucune installation requise, c'est un fichier standalone.</span></div>
+              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 2:</strong> Double-cliquez pour l'exécuter. Il tournera discrètement en arrière-plan sans ralentir votre PC.</span></div>
+              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 3:</strong> La télémétrie locale commence. Le client gère automatiquement les coupures de courant.</span></div>
+            </div>
+
+            <a href="/vc-agent-windows.exe" download className="btn-wow" style={{ marginTop: 30, width: '100%', display: 'inline-block', textAlign: 'center' }}>Download vc-agent-windows.exe</a>
+          </div>
+
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src="/windows_diag.svg" alt="Windows Setup Diagram" style={{ width: '100%', borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }} />
           </div>
         </div>
-        <div className="guide-card card-glass">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}><span style={{ fontSize: 32 }}>🐧</span> <h3>Linux Terminal Service</h3></div>
-          <p style={{ marginTop: 15, color: '#999' }}>Deploy cleanly as an executable on Ubuntu/Debian arrays.</p>
-          <div className="code-block" style={{ marginTop: 20, background: '#000', padding: 20, borderRadius: 12, fontSize: 13, border: '1px solid #333' }}>
-            <code style={{ color: 'var(--accent-neon)' }}>$ wget http://vc-uy1.npe-techs.com:9090/vc-agent-linux</code><br />
-            <code style={{ color: 'var(--accent-neon)' }}>$ chmod +x vc-agent-linux</code><br />
-            <code style={{ color: 'var(--accent-neon)' }}>$ ./vc-agent-linux</code>
+
+        {/* LINUX GUIDE */}
+        <div className="guide-card card-glass" style={{ display: 'flex', gap: 40, borderColor: '#333' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: 20 }}>
+              <span style={{ fontSize: 40 }}>🐧</span>
+              <h3>Linux Terminal / Server</h3>
+            </div>
+
+            <div className="step-list">
+              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 1:</strong> Download the pre-compiled binary via CLI on your Ubuntu/Debian lab node.</span></div>
+              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 2:</strong> Accordez les droits d'exécution avec <code>chmod +x</code>.</span></div>
+              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 3:</strong> Démarrez l'agent. Idéal pour les configurations de graphes distribués dans les Amphithéâtres.</span></div>
+            </div>
+
+            <div className="code-block" style={{ marginTop: 20, background: '#000', padding: 20, borderRadius: 12, fontSize: 13, border: '1px solid #333', fontFamily: 'monospace' }}>
+              <span style={{ color: 'var(--accent-neon)' }}>$</span> wget http://vc-uy1.npe-techs.com:9090/vc-agent-linux<br />
+              <span style={{ color: 'var(--accent-neon)' }}>$</span> chmod +x vc-agent-linux<br />
+              <span style={{ color: 'var(--accent-neon)' }}>$</span> ./vc-agent-linux
+            </div>
+            <a href="/vc-agent-linux" download className="btn-outline" style={{ marginTop: 15, display: 'inline-block', width: '100%', textAlign: 'center' }}>Download Binary directly</a>
           </div>
-          <a href="/vc-agent-linux" download className="btn-outline" style={{ marginTop: 15, display: 'inline-block', width: '100%', textAlign: 'center' }}>Download Binary directly</a>
-          <div className="img-container" style={{ marginTop: 20 }}>
-            <img src="/linux_diag.svg" alt="Terminal" style={{ width: '100%', borderRadius: 12 }} />
+
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src="/linux_diag.svg" alt="Linux Setup Diagram" style={{ width: '100%', borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }} />
           </div>
         </div>
+
       </div>
     </motion.section>
   );

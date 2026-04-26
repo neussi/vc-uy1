@@ -109,4 +109,4 @@
   filter: blur(80px);
   border-radius: 50%;
   z-index: -1;
-}
+}.step-list { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; } .step { display: flex; align-items: flex-start; gap: 10px; color: #ccc; line-height: 1.5; font-size: 15px; }
