@@ -111,6 +111,7 @@ def main():
         syncer.report_power_event(machine_id, "power_cut", status['gap_s'])
     
     # 4. Register and verify consent
+    session_id = str(uuid.uuid4())
     consent_level = get_consent()
     syncer.register(machine_id, consent_level=consent_level)
     syncer.start_session(machine_id, session_id)
