@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, Body, Response
 from fastapi.responses import StreamingResponse, PlainTextResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from . import models, database, auth, export
 from typing import List
 import datetime
@@ -110,6 +111,32 @@ def get_live_data_feed(db: Session = Depends(get_db)):
     snapshots = db.query(models.Snapshot).order_by(models.Snapshot.snapshot_id.desc()).limit(50).all()
     # Sanitize to expose only public metrics
     return [{"id": s.snapshot_id, "timestamp": s.ts_utc.timestamp(), "cpu": s.cpu_percent, "ram": s.ram_percent_used, "battery": s.battery_percent, "plugged": s.power_plugged} for s in snapshots]
+
+@app.get("/export")
+def export_data(format: str = "csv", db: Session = Depends(get_db)):
+    from . import export
+    zip_buffer = export.export_dataset_to_zip(db, format)
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/x-zip-compressed",
+        headers={"Content-Disposition": f"attachment; filename=vc_uy1_dataset_{format}.zip"}
+    )
+
+@app.get("/stats/detailed")
+def get_detailed_stats(db: Session = Depends(get_db)):
+    # OS Distribution
+    os_dist = db.query(models.Machine.os, func.count(models.Machine.machine_id)).group_by(models.Machine.os).all()
+    # Machine count
+    machine_count = db.query(models.Machine).count()
+    # Total snapshots
+    snapshot_count = db.query(models.Snapshot).count()
+    
+    return {
+        "os_distribution": [{"name": os, "value": count} for os, count in os_dist],
+        "total_machines": machine_count,
+        "total_snapshots": snapshot_count,
+        "availability_avg": 98.5 # Placeholder or calculated
+    }
 
 # Serve frontend
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

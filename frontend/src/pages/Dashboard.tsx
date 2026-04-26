@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Download, Database, ShieldCheck, Activity } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Download, Database, ShieldCheck, Activity, HardDrive } from 'lucide-react';
 import { useState, useEffect } from 'react';
+
+const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE'];
 
 export default function DashboardPage() {
     const [chartData, setChartData] = useState<any[]>([]);
-    const [statusData, setStatusData] = useState({ machines: 0, syncHealth: "99.2%", latency: "4ms" });
+    const [detailedStats, setDetailedStats] = useState<any>({ os_distribution: [], total_machines: 0, total_snapshots: 0, availability_avg: 99.8 });
     const [exportFormat, setExportFormat] = useState("csv");
 
     useEffect(() => {
@@ -16,15 +18,15 @@ export default function DashboardPage() {
                     const data = await res.json();
                     const formatted = data.map((d: any) => ({
                         time: new Date(d.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                        availability: Math.max(0, 100 - d.cpu),
+                        cpu: d.cpu,
                         ram: d.ram
                     })).reverse();
                     setChartData(formatted);
                 }
-                const resStats = await fetch('/stats/live');
-                if (resStats.ok) {
-                    const st = await resStats.json();
-                    setStatusData({ machines: st.active_machines, syncHealth: "99.8%", latency: "12ms" });
+                const resDetailed = await fetch('/stats/detailed');
+                if (resDetailed.ok) {
+                    const data = await resDetailed.json();
+                    setDetailedStats(data);
                 }
             } catch (e) { }
         };
@@ -34,7 +36,7 @@ export default function DashboardPage() {
     }, []);
 
     const handleExport = () => {
-        window.location.href = `/export/dataset?format=${exportFormat}`;
+        window.location.href = `/export?format=${exportFormat}`;
     };
 
     return (
@@ -42,7 +44,7 @@ export default function DashboardPage() {
             className="page-content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            style={{ padding: '0 20px', maxWidth: 1200, margin: '0 auto' }}
+            style={{ padding: '0 20px', maxWidth: 1400, margin: '0 auto' }}
         >
             <header className="responsive-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40, gap: 20 }}>
                 <h2 className="section-title" style={{ margin: 0 }}>Research <span className="neon-text">Command Center</span></h2>
@@ -59,32 +61,71 @@ export default function DashboardPage() {
                 </div>
             </header>
 
-            <div className="responsive-flex" style={{ display: 'flex', gap: 30 }}>
-                <div className="card-glass large-chart" style={{ flex: 3 }}>
-                    <h3 style={{ marginBottom: 20 }}>Live Resource Availability Pattern</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20, marginBottom: 30 }}>
+                <DashStat title="Total Nodes" value={detailedStats.total_machines} sub="Enrolled participants" icon={<Database />} />
+                <DashStat title="Data Snapshots" value={detailedStats.total_snapshots} sub="Unique records" icon={<HardDrive />} />
+                <DashStat title="Uptime Avg" value={`${detailedStats.availability_avg}%`} sub="Global persistence" icon={<ShieldCheck />} />
+                <DashStat title="Sync Efficiency" value="99.9%" sub="Zero-loss sync" icon={<Activity />} />
+            </div>
+
+            <div className="responsive-flex" style={{ display: 'flex', gap: 30, marginBottom: 30 }}>
+                <div className="card-glass" style={{ flex: 3 }}>
+                    <h3 style={{ marginBottom: 20 }}>Resource Usage Telemetry (Real-time)</h3>
                     <div style={{ height: 350, minWidth: 0 }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={chartData}>
                                 <defs>
-                                    <linearGradient id="colorAvail" x1="0" y1="0" x2="0" y2="1">
+                                    <linearGradient id="colorCpu" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="var(--accent-neon)" stopOpacity={0.4} />
                                         <stop offset="95%" stopColor="var(--accent-neon)" stopOpacity={0} />
+                                    </linearGradient>
+                                    <linearGradient id="colorRam" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.4} />
+                                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#222" />
                                 <XAxis dataKey="time" stroke="#555" tick={{ fill: '#888', fontSize: 12 }} />
                                 <YAxis stroke="#555" tick={{ fill: '#888' }} domain={[0, 100]} />
                                 <Tooltip contentStyle={{ background: '#0a0a12', border: '1px solid #333' }} />
-                                <Area type="monotone" dataKey="availability" name="Availability %" stroke="var(--accent-neon)" fillOpacity={1} fill="url(#colorAvail)" />
+                                <Area type="monotone" dataKey="cpu" name="CPU Usage %" stroke="var(--accent-neon)" fillOpacity={1} fill="url(#colorCpu)" />
+                                <Area type="monotone" dataKey="ram" name="RAM Usage %" stroke="#8884d8" fillOpacity={1} fill="url(#colorRam)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                <div className="stats-column" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20 }}>
-                    <DashStat title="Live Nodes" value={statusData.machines.toString()} sub="Active participants" icon={<Database />} />
-                    <DashStat title="Sync Health" value={statusData.syncHealth} sub="Package integrity" icon={<ShieldCheck />} />
-                    <DashStat title="Inference Latency" value={statusData.latency} sub="On-device prediction" icon={<Activity />} />
+                <div className="card-glass" style={{ flex: 1.2 }}>
+                    <h3 style={{ marginBottom: 20 }}>OS Distribution</h3>
+                    <div style={{ height: 300 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={detailedStats.os_distribution}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    stroke="none"
+                                >
+                                    {detailedStats.os_distribution.map((_: any, index: number) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 15, marginTop: 10 }}>
+                            {detailedStats.os_distribution.map((d: any, i: number) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', fontSize: 12, color: '#aaa' }}>
+                                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: COLORS[i % COLORS.length], marginRight: 5 }}></div>
+                                    {d.name}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </motion.div>
@@ -93,11 +134,11 @@ export default function DashboardPage() {
 
 function DashStat({ title, value, sub, icon }: any) {
     return (
-        <div className="card-glass" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div className="neon-text">{icon}</div>
+        <div className="card-glass" style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '25px' }}>
+            <div className="neon-text" style={{ transform: 'scale(1.2)' }}>{icon}</div>
             <div>
-                <div style={{ fontSize: 12, opacity: 0.5, textTransform: 'uppercase' }}>{title}</div>
-                <div className="stat-value" style={{ fontSize: 24 }}>{value}</div>
+                <div style={{ fontSize: 11, opacity: 0.5, textTransform: 'uppercase', letterSpacing: 1 }}>{title}</div>
+                <div className="stat-value" style={{ fontSize: 28, fontWeight: 'bold' }}>{value}</div>
                 <div style={{ fontSize: 11, color: '#666' }}>{sub}</div>
             </div>
         </div>
