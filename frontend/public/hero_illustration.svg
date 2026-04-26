@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+    <defs>
+        <radialGradient id="neonGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(204, 255, 0, 0.4)" />
+            <stop offset="100%" stop-color="rgba(0, 0, 0, 0)" />
+        </radialGradient>
+        <radialGradient id="neonGlowBlue" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(0, 255, 204, 0.3)" />
+            <stop offset="100%" stop-color="rgba(0, 0, 0, 0)" />
+        </radialGradient>
+        <filter id="blurFilter">
+            <feGaussianBlur stdDeviation="8"/>
+        </filter>
+        <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ccff00" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#00ffcc" stop-opacity="0.2"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Deep Glows -->
+    <circle cx="250" cy="250" r="200" fill="url(#neonGlow)" />
+    <circle cx="350" cy="150" r="150" fill="url(#neonGlowBlue)" />
+    
+    <!-- Hexagonal Grid Network -->
+    <g stroke="rgba(255, 255, 255, 0.1)" stroke-width="1.5" fill="none">
+        <path d="M 250,100 L 336,150 L 336,250 L 250,300 L 164,250 L 164,150 Z" />
+        <path d="M 336,250 L 422,300 L 422,400 L 336,450 L 250,400 L 250,300 Z" />
+        <path d="M 164,250 L 250,300 L 250,400 L 164,450 L 78,400 L 78,300 Z" />
+        <path d="M 250,200 L 336,250 L 250,300 L 164,250 Z" stroke="url(#gridGradient)" stroke-width="3" />
+    </g>
+
+    <!-- Floating Data Nodes -->
+    <circle cx="250" cy="100" r="8" fill="#ccff00" />
+    <circle cx="336" cy="150" r="6" fill="#00ffcc" />
+    <circle cx="164" cy="150" r="5" fill="#ffffff" />
+    <circle cx="422" cy="300" r="7" fill="#ccff00" />
+    <circle cx="78" cy="300" r="6" fill="#00ffcc" />
+    <circle cx="250" cy="400" r="10" fill="#ffffff" />
+    <circle cx="336" cy="450" r="5" fill="#ccff00" />
+    <circle cx="164" cy="450" r="5" fill="#00ffcc" />
+    
+    <!-- Central Core -->
+    <g transform="translate(250, 250)">
+        <circle cx="0" cy="0" r="40" fill="url(#gridGradient)" filter="url(#blurFilter)"/>
+        <circle cx="0" cy="0" r="30" fill="#111" stroke="#ccff00" stroke-width="4"/>
+        <circle cx="0" cy="0" r="10" fill="#ffffff" />
+        
+        <!-- Rotating Orbitals -->
+        <g stroke="#00ffcc" stroke-width="2" fill="none">
+            <ellipse rx="70" ry="20" transform="rotate(30)">
+                <animateTransform attributeName="transform" type="rotate" from="30" to="390" dur="10s" repeatCount="indefinite" />
+            </ellipse>
+            <ellipse rx="70" ry="20" transform="rotate(120)">
+                <animateTransform attributeName="transform" type="rotate" from="120" to="480" dur="15s" repeatCount="indefinite" />
+            </ellipse>
+            <ellipse rx="70" ry="20" transform="rotate(210)">
+                <animateTransform attributeName="transform" type="rotate" from="210" to="570" dur="12s" repeatCount="indefinite" />
+            </ellipse>
+        </g>
+    </g>
+
+    <!-- Moving Bytes (Animation) -->
+    <circle cx="0" cy="0" r="3" fill="#ffffff">
+        <animateMotion path="M 250,100 L 250,220" dur="2s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="3" fill="#ccff00">
+        <animateMotion path="M 336,150 L 270,230" dur="1.5s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="3" fill="#00ffcc">
+        <animateMotion path="M 422,300 L 280,270" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="0" cy="0" r="3" fill="#ccff00">
+        <animateMotion path="M 78,300 L 220,270" dur="2.5s" repeatCount="indefinite" />
+    </circle>
+</svg>

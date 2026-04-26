@@ -104,6 +104,9 @@ function LandingPage() {
             <Link to="/about" className="btn-outline">Watch Research Overview</Link>
           </div>
         </div>
+        <div className="hero-visual">
+          <img src="/hero_illustration.svg" alt="Cyber Grid Elements" style={{ width: '100%', maxWidth: '400px', transform: 'scale(1.1)' }} />
+        </div>
       </div>
 
       <motion.div className="stats-strip" variants={staggerContainer} initial="initial" animate="animate" style={{ marginTop: 40 }}>
