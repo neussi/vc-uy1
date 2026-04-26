@@ -119,8 +119,9 @@ def sync_power_events(event: dict = Body(...), db: Session = Depends(get_db)):
         db_event = models.PowerEvent(
             machine_id=event['machine_id'],
             event_type=event['event_type'],
-            gap_s=event['gap_s'],
-            timestamp=ts_utc
+            gap_seconds=event.get('gap_s'),
+            detected_at=ts_utc,
+            last_heartbeat_ts=None # To be improved if needed
         )
         db.add(db_event)
         db.commit()

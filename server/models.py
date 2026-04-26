@@ -82,9 +82,10 @@ class PowerEvent(Base):
     __tablename__ = 'power_events'
     event_id = Column(Integer, primary_key=True, autoincrement=True)
     machine_id = Column(String, ForeignKey('machines.machine_id'), nullable=False)
+    event_type = Column(String, nullable=False) # 'power_cut' | 'to_battery' | 'to_ac'
     detected_at = Column(DateTime, nullable=False)
-    last_heartbeat_ts = Column(DateTime, nullable=False)
-    gap_seconds = Column(Integer, nullable=False)
+    last_heartbeat_ts = Column(DateTime)
+    gap_seconds = Column(Integer)
     cpu_before = Column(Float)
     ram_before = Column(Float)
 

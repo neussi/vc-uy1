@@ -88,11 +88,20 @@ def main():
     
     # 5. Main collection loop
     is_workload_running = False
+    last_power_status = None
     try:
         while True:
-            # 6. Check for idle and trigger workload
+            # 6. Check stats
             stats = collector.get_stats(is_task_active=is_workload_running)
             
+            # Detect transition (To Battery or To AC)
+            current_power_status = stats['power_plugged']
+            if last_power_status is not None and current_power_status != last_power_status:
+                event_type = "to_ac" if current_power_status else "to_battery"
+                logger.info(f"Power source transition detected: {event_type}")
+                syncer.report_power_event(machine_id, event_type, 0)
+            last_power_status = current_power_status
+
             # Save heartbeat
             heartbeat.write_heartbeat()
             
