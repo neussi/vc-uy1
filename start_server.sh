@@ -9,8 +9,14 @@ pip3 install -r server/requirements.txt
 fuser -k $PORT/tcp || true
 
 # Start Gunicorn in the background
-# We assume we are in the project root
+LOG_FILE="/var/log/vc_uy1_gunicorn.log"
 echo "Starting VC-UY1 Server on port $PORT..."
-nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker server.main:app --bind 0.0.0.0:$PORT > server.log 2>&1 &
+nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker server.main:app --bind 0.0.0.0:$PORT --access-logfile $LOG_FILE --error-logfile $LOG_FILE > server.log 2>&1 &
 
-echo "Server started successfully."
+sleep 5
+if pgrep -f "gunicorn.*server.main:app" > /dev/null; then
+    echo "Server started successfully and verified."
+else
+    echo "ERROR: Server failed to start. Check $LOG_FILE for details."
+    exit 1
+fi
