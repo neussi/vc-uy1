@@ -51,9 +51,9 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/vc-uy1
-            # Install backend requirements
-            pip3 install -r server/requirements.txt
-            # Ensure Apache config is linked
+            # Enable modules
+            a2enmod proxy proxy_http rewrite
+            # Link config
             cp apache_vc_uy1.conf /etc/apache2/sites-available/vc-uy1.conf
             a2ensite vc-uy1
             systemctl reload apache2
