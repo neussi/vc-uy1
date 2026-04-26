@@ -100,7 +100,7 @@
  [],
  False,
  False,
- 1777190938,
+ 1777192911,
  [('run',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run',

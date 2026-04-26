@@ -5,7 +5,7 @@ from . import collector, database # Assuming I'll need a local DB later, but for
 
 logger = logging.getLogger("VC-Syncer")
 
-SERVER_URL = "http://vc-uy1.npe-techs.com" # Should be configurable
+SERVER_URL = "http://vc-uy1.npe-techs.com/sync/snapshots" # Should be configurable
 
 def register(machine_id):
     """Register the machine with the server if not already done."""

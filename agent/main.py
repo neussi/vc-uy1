@@ -17,6 +17,7 @@ def main():
     
     # 2. Register once
     machine_id = collector.get_machine_id()
+    SERVER_URL = "http://vc-uy1.npe-techs.com/register"
     syncer.register(machine_id)
     
     # 3. Main collection loop

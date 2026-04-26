@@ -183,7 +183,7 @@ function AboutPage() {
       <div className="card-glass" style={{ lineHeight: 1.8, fontSize: '18px' }}>
         <p>Our research focuses on the unique challenges of **Volunteer Computing (VC)** in Sub-Saharan Africa, specifically targeting the **University of Yaoundé 1** ecosystem.</p>
         <p style={{ marginTop: 20 }}>With power grid instability being a major factor, we implement **TinyML models (GRU/LSTM)** that run locally on volunteer machines to predict availability windows, allowing the global scheduler to make intelligent task distribution decisions.</p>
-        <div style={{ marginTop: 40, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+        <div className="responsive-grid" style={{ marginTop: 40, gap: '30px' }}>
           <div className="card-glass" style={{ padding: '20px', textAlign: 'center' }}>
             <Globe className="neon-text" style={{ marginBottom: 15 }} />
             <h4>Local Relevance</h4>
@@ -214,7 +214,7 @@ function VolunteersPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
 
         {/* WINDOWS GUIDE */}
-        <div className="guide-card card-glass" style={{ display: 'flex', gap: 40 }}>
+        <div className="guide-card card-glass responsive-flex" style={{ display: 'flex', gap: 40 }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: 20 }}>
               <span style={{ fontSize: 40 }}>🪟</span>
@@ -236,7 +236,7 @@ function VolunteersPage() {
         </div>
 
         {/* LINUX GUIDE */}
-        <div className="guide-card card-glass" style={{ display: 'flex', gap: 40, borderColor: '#333' }}>
+        <div className="guide-card card-glass responsive-flex" style={{ display: 'flex', gap: 40, borderColor: '#333' }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: 20 }}>
               <span style={{ fontSize: 40 }}>🐧</span>
@@ -250,7 +250,7 @@ function VolunteersPage() {
             </div>
 
             <div className="code-block" style={{ marginTop: 20, background: '#000', padding: 20, borderRadius: 12, fontSize: 13, border: '1px solid #333', fontFamily: 'monospace' }}>
-              <span style={{ color: 'var(--accent-neon)' }}>$</span> wget http://vc-uy1.npe-techs.com:9090/vc-agent-linux<br />
+              <span style={{ color: 'var(--accent-neon)' }}>$</span> wget http://vc-uy1.npe-techs.com/vc-agent-linux<br />
               <span style={{ color: 'var(--accent-neon)' }}>$</span> chmod +x vc-agent-linux<br />
               <span style={{ color: 'var(--accent-neon)' }}>$</span> ./vc-agent-linux
             </div>
@@ -270,15 +270,38 @@ function VolunteersPage() {
 import DashboardPage from './pages/Dashboard';
 
 function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const fd = new FormData();
+      fd.append('username', username);
+      fd.append('password', password);
+      const res = await fetch('/token', { method: 'POST', body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('vc_token', data.access_token);
+        window.location.href = '/dashboard';
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (e) {
+      setError('Connection to backend failed');
+    }
+  };
+
   return (
     <motion.div className="page-content" variants={pageVariants} initial="initial" animate="animate" exit="exit" style={{ display: 'flex', justifyContent: 'center' }}>
       <div className="card-glass" style={{ maxWidth: 450, width: '100%', textAlign: 'center' }}>
         <div className="icon neon-text" style={{ marginBottom: 20, display: 'inline-block' }}><User size={40} /></div>
         <h2>Admin Access</h2>
         <p style={{ color: '#777', marginTop: 10, marginBottom: 30 }}>Secure area for Master 2 Research Team only.</p>
-        <input type="text" placeholder="Access key or username" className="input-futuristic" />
-        <input type="password" placeholder="System password" className="input-futuristic" style={{ marginTop: 15 }} />
-        <button className="btn-wow" style={{ marginTop: 30, width: '100%' }}>Establish Connection</button>
+        {error && <p style={{ color: '#ff5f56', marginBottom: 15 }}>{error}</p>}
+        <input type="text" placeholder="Access key or username" value={username} onChange={e => setUsername(e.target.value)} className="input-futuristic" />
+        <input type="password" placeholder="System password" value={password} onChange={e => setPassword(e.target.value)} className="input-futuristic" style={{ marginTop: 15 }} />
+        <button onClick={handleLogin} className="btn-wow" style={{ marginTop: 30, width: '100%' }}>Establish Connection</button>
       </div>
     </motion.div>
   );

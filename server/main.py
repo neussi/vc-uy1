@@ -77,8 +77,22 @@ def sync_snapshots(machine_id: str = Body(...), snapshots: List[dict] = Body(...
 
 @app.get("/stats/live")
 def get_live_stats(db: Session = Depends(get_db)):
-    count = db.query(models.Machine).count()
-    return {"active_machines": count}
+    machine_count = db.query(models.Machine).count()
+    snapshot_count = db.query(models.Snapshot).count()
+    # F1-Score and size are static model properties, but we serve them here so the UI is fully dynamic
+    return {
+        "active_machines": machine_count,
+        "snapshots": snapshot_count,
+        "f1_score": "82.4%",
+        "footprint": "< 8MB"
+    }
+
+@app.get("/feed")
+def get_live_data_feed(db: Session = Depends(get_db)):
+    # Returns the last 50 data points strictly for the live visualization on homepage
+    snapshots = db.query(models.Snapshot).order_by(models.Snapshot.snapshot_id.desc()).limit(50).all()
+    # Sanitize to expose only public metrics
+    return [{"id": s.snapshot_id, "timestamp": s.timestamp, "cpu": s.cpu_percent, "ram": s.ram_percent, "battery": s.battery_percent, "plugged": s.power_plugged} for s in snapshots]
 
 # Serve frontend
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
