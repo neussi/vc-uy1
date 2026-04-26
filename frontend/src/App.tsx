@@ -57,6 +57,7 @@ function NavLink({ to, children, active, icon, className = "" }: any) {
 // --- PAGES ---
 function LandingPage() {
   const [liveData, setLiveData] = useState<any[]>([]);
+  const [stats, setStats] = useState({ snapshots: 0, f1_score: "82.4%", footprint: "< 8MB" });
 
   useEffect(() => {
     const fetchLiveFeed = async () => {
@@ -70,8 +71,25 @@ function LandingPage() {
         console.error("Live feed offline");
       }
     };
+
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/stats/live');
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (e) { }
+    };
+
     fetchLiveFeed();
-    const interval = setInterval(fetchLiveFeed, 5000);
+    fetchStats();
+
+    const interval = setInterval(() => {
+      fetchLiveFeed();
+      fetchStats();
+    }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -86,18 +104,21 @@ function LandingPage() {
             <Link to="/about" className="btn-outline">Watch Research Overview</Link>
           </div>
         </div>
-        <div className="hero-visual">
-          <motion.div className="floating-glow" animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}>
-            <img src="/architecture.svg" alt="Distributed Architecture" style={{ width: '100%', borderRadius: 20, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }} />
-          </motion.div>
-        </div>
       </div>
 
-      <motion.div className="stats-strip" variants={staggerContainer} initial="initial" animate="animate" style={{ marginTop: 60 }}>
-        <StatCard icon={<Server />} value="484k" label="Snapshots Collected" />
-        <StatCard icon={<Zap />} value="82.4%" label="Prediction F1-Score" />
-        <StatCard icon={<Shield />} value="< 8MB" label="Model Footprint" />
+      <motion.div className="stats-strip" variants={staggerContainer} initial="initial" animate="animate" style={{ marginTop: 40 }}>
+        <StatCard icon={<Server />} value={stats.snapshots.toLocaleString() + (stats.snapshots > 0 ? '' : '+')} label="Snapshots Collected (Live)" />
+        <StatCard icon={<Zap />} value={stats.f1_score} label="Prediction F1-Score" />
+        <StatCard icon={<Shield />} value={stats.footprint} label="Model Footprint" />
       </motion.div>
+
+      {/* ENLARGED ARCHITECTURE SVG */}
+      <div style={{ marginTop: 80, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <h3 style={{ fontSize: 24, marginBottom: 20, textAlign: 'center' }}><Globe className="neon-text" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 10 }} /> Distributed Artificial Intelligence Architecture</h3>
+        <motion.div className="floating-glow" animate={{ y: [0, -10, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} style={{ width: '100%', maxWidth: '1000px' }}>
+          <img src="/architecture.svg" alt="Distributed Architecture" style={{ width: '100%', borderRadius: 20, boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }} />
+        </motion.div>
+      </div>
 
       <div style={{ marginTop: 80 }}>
         <h3 style={{ fontSize: 24, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}><Activity className="neon-text" /> Live Volunteer Telemetry Stream</h3>
