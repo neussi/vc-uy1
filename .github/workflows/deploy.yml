@@ -54,6 +54,7 @@ jobs:
             # Enable modules & Set priority
             a2enmod proxy proxy_http rewrite
             a2dissite 000-default || true
+            ufw allow 9090/tcp || true
             # Link config
             cp apache_vc_uy1.conf /etc/apache2/sites-available/vc-uy1.conf
             a2ensite vc-uy1
