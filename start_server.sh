@@ -1,22 +1,27 @@
 #!/bin/bash
 # Server port as requested
-PORT=76123
+PORT=6123
 
-# Install dependencies if not present
-pip3 install -r server/requirements.txt
+# Create and activate virtual environment
+python3 -m venv venv-server
+source venv-server/bin/activate
 
-# Kill any previous instance on the port to avoid address-in-use errors
+# Install dependencies
+pip install -qqq -r server/requirements.txt
+
+# Kill any previous instance on the port
 fuser -k $PORT/tcp || true
+pkill -f "gunicorn.*server.main:app" || true
 
 # Start Gunicorn in the background
-LOG_FILE="/var/log/vc_uy1_gunicorn.log"
-echo "Starting VC-UY1 Server on port 6123..."
-nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:6123 --log-level debug --error-logfile /var/log/vc_uy1_gunicorn.log > server.log 2>&1 &
+echo "Starting VC-UY1 Server on port $PORT..."
+nohup python3 -m gunicorn -w 4 -k uvicorn.workers.UvicornWorker server.main:app --bind 0.0.0.0:$PORT --log-level debug > server.log 2>&1 &
 
 sleep 5
 if pgrep -f "gunicorn.*server.main:app" > /dev/null; then
-    echo "Server started successfully and verified."
+    echo "Server started successfully and verified on port $PORT."
 else
-    echo "ERROR: Server failed to start. Check $LOG_FILE for details."
+    echo "ERROR: Server failed to start."
+    cat server.log
     exit 1
 fi
