@@ -28,7 +28,7 @@ function Nav() {
       transition={{ type: "spring", stiffness: 100 }}
     >
       <Link to="/" className="logo">
-        <img src="/logo.svg" alt="VC-UY1 Logo" style={{ height: '35px', filter: 'drop-shadow(0 0 8px rgba(204, 255, 0, 0.4))' }} />
+        <img src="/logo.svg?v=gold_final_v2" alt="VC-UY1 Logo" style={{ height: '35px', filter: 'drop-shadow(0 0 8px rgba(204, 255, 0, 0.4))' }} />
       </Link>
       <div className="nav-links">
         <NavLink to="/about" active={location.pathname === '/about'} icon={<Info size={16} />}>About</NavLink>

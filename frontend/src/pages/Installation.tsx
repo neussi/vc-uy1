@@ -9,8 +9,9 @@ const steps = [
         desc: "Préparez votre environnement pour une contribution optimale à la recherche scientifique.",
         details: [
             "Assurez-vous d'être sur Windows 10/11 (64-bit).",
-            "Prévoyez ~15MB d'espace disque disponible.",
-            "L'agent est certifié sécurisé par l'Université de Yaoundé 1."
+            "Niveaux de Consentement (GLOBECOM 2023) :",
+            "1. Essentiel - 2. Système - 3. Recherche - 4. Feedback",
+            "Par défaut : Niveau 3 (Modèles Recherche Anonymisés)."
         ]
     },
     {

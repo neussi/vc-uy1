@@ -4,6 +4,9 @@ import uuid
 import heartbeat, collector, syncer, persistence, workload
 import logging
 import os
+import json
+import argparse
+import random
 
 # Configure logging to file for background execution
 LOG_FILE = "agent_system.log"
@@ -36,26 +39,52 @@ def print_welcome_message():
     print(message)
     print("\nL'agent fonctionne maintenant en arrière-plan. Vous pouvez fermer ce terminal.\n")
 
+def get_consent():
+    """Load or prompt for Research Consent Level (GLOBECOM 2023)."""
+    consent_file = "consent.json"
+    if os.path.exists(consent_file):
+        try:
+            with open(consent_file, "r") as f:
+                return json.load(f).get("consent_level", 1)
+        except:
+            pass
+            
+    print("\n" + "="*60)
+    print("   UNIVERSITY OF YAOUNDE 1 - RESEARCH CONSENT FRAMEWORK")
+    print("="*60)
+    print("Veuillez choisir votre niveau de partage de données :")
+    print("1. Essentiel : Profil matériel, disponibilité de base")
+    print("2. Système : Métriques de performance, patterns d'erreurs")
+    print("3. Recherche : Modèles comportementaux anonymisés (Standard)")
+    print("4. Feedback : Enquêtes d'expérience utilisateur")
+    print("="*60)
+    
+    # In interactive mode, we could ask, but for large scale we default to 3
+    # or look for an environment variable / cli arg.
+    level = 3 
+    print(f"-> Niveau sélectionné par défaut pour la recherche : {level}")
+    
+    with open(consent_file, "w") as f:
+        json.dump({"consent_level": level, "accepted_at": time.time()}, f)
+    return level
+
 def daemonize():
     """Fork the process into the background (Linux)."""
     if os.name != 'posix':
-        return # Windows backgrounding is handled differently (pythonw/registry)
+        return
     
     try:
         pid = os.fork()
         if pid > 0:
-            # First parent exists
             sys.exit(0)
     except OSError as e:
         logger.error(f"Fork #1 failed: {e}")
         sys.exit(1)
 
     os.setsid()
-    
     try:
         pid = os.fork()
         if pid > 0:
-            # Second parent exists
             sys.exit(0)
     except OSError as e:
         logger.error(f"Fork #2 failed: {e}")
@@ -81,64 +110,63 @@ def main():
         logger.warning(f"Power cut detected! Downtime: {status['gap_s']}s")
         syncer.report_power_event(machine_id, "power_cut", status['gap_s'])
     
-    # 4. Register once and start session
-    session_id = str(uuid.uuid4())
-    syncer.register(machine_id)
+    # 4. Register and verify consent
+    consent_level = get_consent()
+    syncer.register(machine_id, consent_level=consent_level)
     syncer.start_session(machine_id, session_id)
     
-    # 5. Main collection loop
+    # 5. Main collection loop (Privacy-Aware)
     is_workload_running = False
     last_power_status = None
     try:
         while True:
-            # 6. Check stats
-            stats = collector.get_stats(is_task_active=is_workload_running)
-            
-            # Detect transition (To Battery or To AC)
-            current_power_status = stats['power_plugged']
-            if last_power_status is not None and current_power_status != last_power_status:
-                event_type = "to_ac" if current_power_status else "to_battery"
-                logger.info(f"Power source transition detected: {event_type}")
-                syncer.report_power_event(machine_id, event_type, 0)
-            last_power_status = current_power_status
+            # Phase 1: Local Aggregation (Micro-cycles of 60s)
+            # We collect 5 mini-samples before sending the 5-min snapshot (GLOBECOM 2023)
+            for _ in range(5):
+                stats = collector.get_stats(is_task_active=is_workload_running, aggregate=True)
+                
+                # Detect transition (Instant response)
+                current_power_status = stats['power_plugged']
+                if last_power_status is not None and current_power_status != last_power_status:
+                    event_type = "to_ac" if current_power_status else "to_battery"
+                    logger.info(f"Power transition: {event_type}")
+                    syncer.report_power_event(machine_id, event_type, 0)
+                last_power_status = current_power_status
 
-            # Save heartbeat
-            heartbeat.write_heartbeat()
-            
-            # Sync with server
-            if stats['is_connected']:
-                syncer.sync_batch(machine_id, session_id, [stats])
-            
-            # 7. Workload logic
-            if not is_workload_running and collector.safe_to_run_task(stats['idle_seconds']):
-                # Run a small workload randomly (e.g. 10% chance per cycle)
-                if time.time() % 30 < 1: 
-                    # Use a separate thread to not block the main loop
-                    import threading
-                    def run_and_track():
-                        nonlocal is_workload_running
-                        is_workload_running = True
-                        task_id = str(uuid.uuid4())
-                        
-                        # Run the workload and get trace
-                        result = workload.run_synthetic_workload(duration_s=60)
-                        
-                        # Prepare final report
-                        result.update({
-                            "task_id": task_id,
-                            "machine_id": machine_id,
-                            "session_id": session_id,
-                            "target_duration_s": 60,
-                            "network_io_mb": random.uniform(0.1, 5.0) # Fictional network trace
-                        })
-                        
-                        # Sync result
-                        syncer.report_task_result(result)
-                        is_workload_running = False
-                    
-                    threading.Thread(target=run_and_track, daemon=True).start()
+                # Heartbeat and Workload logic check
+                heartbeat.write_heartbeat()
+                
+                # Workload trigger
+                if not is_workload_running and collector.get_idle_time() > 600:
+                    # 10% chance to start a task in this mini-cycle
+                    if random.random() < 0.1:
+                        import threading
+                        def run_and_track():
+                            nonlocal is_workload_running
+                            is_workload_running = True
+                            task_id = str(uuid.uuid4())
+                            result = workload.run_synthetic_workload(duration_s=60)
+                            result.update({
+                                "task_id": task_id,
+                                "machine_id": machine_id,
+                                "session_id": session_id,
+                                "target_duration_s": 60,
+                                "avg_cpu_load": result.get('avg_cpu', 0), # Fix field name
+                                "avg_ram_load": result.get('avg_ram', 0)
+                            })
+                            syncer.report_task_result(result)
+                            is_workload_running = False
+                        threading.Thread(target=run_and_track, daemon=True).start()
 
-            time.sleep(300) # 5 minutes for pro research cycle
+                time.sleep(60) # 1 minute sampling unit
+
+            # Phase 2: Transmission (Aggregated data)
+            if syncer.check_connectivity():
+                # Get the aggregated stats (averages)
+                final_stats = collector.get_stats(is_task_active=is_workload_running, aggregate=True)
+                syncer.sync_batch(machine_id, session_id, [final_stats])
+                collector.clear_aggregation_buffers()
+                logger.info("Aggregated snapshot synchronized (Privacy-Mode).")
     except KeyboardInterrupt:
         logger.info("Shutting down cleanly...")
         heartbeat.write_heartbeat(shutdown_clean=True)

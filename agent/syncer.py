@@ -21,18 +21,22 @@ def get_verify_path():
         return os.path.join(sys._MEIPASS, 'certifi', 'cacert.pem')
     return certifi.where()
 
-def register(machine_id):
-    """Register the machine with the server if not already done."""
+def register(machine_id, consent_level=1):
+    """Register machine with specific research consent level."""
+    url = f"{SERVER_URL}/register"
+    data = {
+        "machine_id": machine_id,
+        "hostname": socket.gethostname(),
+        "os": platform.system().lower(),
+        "ram_gb": round(psutil.virtual_memory().total / (1024**3), 1),
+        "cpu_cores": psutil.cpu_count(),
+        "timezone": time.tzname[0],
+        "city": "Unknown",
+        "consent_level": consent_level
+    }
     try:
-        data = {
-            "machine_id": machine_id,
-            "os": "linux", # Should detect dynamically
-            "hostname_hash": collector.get_machine_id(), # Sample
-            "cpu_cores": 4, # Sample
-            "ram_total_mb": 8192,
-        }
-        response = requests.post(f"{SERVER_URL}/register", json=data, timeout=10, verify=get_verify_path())
-        return response.status_code in [200, 201]
+        requests.post(url, json=data, verify=get_verify_path(), timeout=10)
+        logger.info(f"Registered with consent level: {consent_level}")
     except Exception as e:
         logger.error(f"Registration failed: {e}")
         return False
