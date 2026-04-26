@@ -15,6 +15,8 @@ class Machine(Base):
     timezone = Column(String) # e.g. 'Africa/Douala'
     city = Column(String)
     registered_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_seen = Column(DateTime)
+    consent_level = Column(Integer, default=1) # 1: Essential, 2: System, 3: Research, 4: Feedback
 
     sessions = relationship("Session", back_populates="machine")
     snapshots = relationship("Snapshot", back_populates="machine")
@@ -71,6 +73,7 @@ class Snapshot(Base):
     # Agent state
     synthetic_task_active = Column(Boolean, default=False)
     synced = Column(Boolean, default=False)
+    is_anonymized = Column(Boolean, default=False)
 
     session = relationship("Session", back_populates="snapshots")
     machine = relationship("Machine", back_populates="snapshots")
