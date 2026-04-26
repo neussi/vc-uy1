@@ -51,7 +51,7 @@ def setup_windows_persistence():
         key = winreg.HKEY_CURRENT_USER
         key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
         with winreg.OpenKey(key, key_path, 0, winreg.KEY_WRITE) as reg_key:
-            winreg.SetValueEx(reg_key, "VC-UY-Agent", 0, winreg.REG_SZ, exe_path)
+            winreg.SetValueEx(reg_key, "VC-UY-Agent", 0, winreg.REG_SZ, f'"{exe_path}"')
         logger.info("Windows persistence registry key added.")
     except ImportError:
         logger.warning("Windows registry access requires 'winreg' (Windows only).")
