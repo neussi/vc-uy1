@@ -6,6 +6,10 @@ import datetime
 import os
 import sys
 import certifi
+import socket
+import time
+import psutil
+import platform
 
 # Fix for PyInstaller one-file bundled execution certificate resolution
 if getattr(sys, 'frozen', False):
