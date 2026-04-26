@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, CheckCircle2 } from 'lucide-react';
+import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, CheckCircle2, ShieldAlert } from 'lucide-react';
 import './App.css';
 
 // --- ANIMATION VARIANTS ---
@@ -221,6 +221,13 @@ function VolunteersPage() {
               <h3>Windows Deployment <span className="neon-text">(Recommended)</span></h3>
             </div>
 
+            <div className="card-glass" style={{ padding: '15px 20px', marginBottom: 20, borderColor: 'rgba(255, 189, 46, 0.3)', background: 'rgba(255, 189, 46, 0.05)' }}>
+              <p style={{ fontSize: 13, color: '#ffbd2e', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <ShieldAlert size={16} />
+                <span>Note : Logiciel de recherche certifié par l'UY1, mais non signé numériquement. Un avertissement Windows apparaîtra au premier lancement.</span>
+              </p>
+            </div>
+
             <div className="step-list">
               <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 1:</strong> Téléchargez l'exécutable natif compilé. Aucune installation requise, c'est un fichier standalone.</span></div>
               <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 2:</strong> Double-cliquez pour l'exécuter. Il tournera discrètement en arrière-plan sans ralentir votre PC.</span></div>
@@ -228,6 +235,7 @@ function VolunteersPage() {
             </div>
 
             <a href="/vc-agent-windows.exe" download className="btn-wow" style={{ marginTop: 30, width: '100%', display: 'inline-block', textAlign: 'center' }}>Download vc-agent-windows.exe</a>
+            <Link to="/install/windows" className="btn-outline" style={{ marginTop: 15, width: '100%', display: 'inline-block', textAlign: 'center' }}>View Visual Setup Guide</Link>
           </div>
 
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -268,6 +276,7 @@ function VolunteersPage() {
 }
 
 import DashboardPage from './pages/Dashboard';
+import InstallationPage from './pages/Installation';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
@@ -319,6 +328,7 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/documentation" element={<LandingPage />} /> {/* Placeholder to avoid 404 in dev */}
               <Route path="/volunteers" element={<VolunteersPage />} />
+              <Route path="/install/windows" element={<InstallationPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
             </Routes>
