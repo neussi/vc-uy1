@@ -88,6 +88,9 @@
   ('python3.12/lib-dynload/_codecs_hk.cpython-312-x86_64-linux-gnu.so',
    '/usr/lib/python3.12/lib-dynload/_codecs_hk.cpython-312-x86_64-linux-gnu.so',
    'EXTENSION'),
+  ('python3.12/lib-dynload/_json.cpython-312-x86_64-linux-gnu.so',
+   '/usr/lib/python3.12/lib-dynload/_json.cpython-312-x86_64-linux-gnu.so',
+   'EXTENSION'),
   ('libexpat.so.1', '/lib/x86_64-linux-gnu/libexpat.so.1', 'BINARY'),
   ('libz.so.1', '/lib/x86_64-linux-gnu/libz.so.1', 'BINARY'),
   ('libcrypto.so.3', '/lib/x86_64-linux-gnu/libcrypto.so.3', 'BINARY'),
@@ -100,7 +103,7 @@
  [],
  False,
  False,
- 1777192911,
+ 1777194374,
  [('run',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run',

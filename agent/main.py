@@ -1,6 +1,6 @@
 import time
 import sys
-from . import heartbeat, collector, syncer
+import heartbeat, collector, syncer
 import logging
 
 logging.basicConfig(level=logging.INFO)

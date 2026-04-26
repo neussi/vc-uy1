@@ -1,7 +1,7 @@
 import requests
 import logging
 import json
-from . import collector, database # Assuming I'll need a local DB later, but for now just send directly
+import collector
 
 logger = logging.getLogger("VC-Syncer")
 
