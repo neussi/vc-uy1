@@ -10,16 +10,29 @@ def get_machine_id():
     return hashlib.sha256(mac.encode()).hexdigest()
 
 def get_stats():
-    """Collect current system metrics."""
+    """Collect current system metrics aligned with DB schema."""
+    now = datetime.datetime.utcnow()
+    local_now = datetime.datetime.now()
+    
+    # Battery/Power
+    battery = psutil.sensors_battery()
+    plugged = battery.power_plugged if battery else True
+    percent = battery.percent if battery else 100
+    
     return {
-        "ts_utc": datetime.datetime.utcnow().isoformat(),
+        "ts_utc": now.isoformat(),
+        "ts_local": local_now.isoformat(),
+        "day_of_week": local_now.weekday(),
+        "hour_of_day": local_now.hour,
         "cpu_percent": psutil.cpu_percent(interval=1),
         "cpu_freq_mhz": psutil.cpu_freq().current if psutil.cpu_freq() else 0,
         "ram_available_mb": psutil.virtual_memory().available // (1024 * 1024),
         "ram_percent_used": psutil.virtual_memory().percent,
+        "power_plugged": plugged,
+        "battery_percent": percent,
         "is_connected": check_connectivity(),
         "idle_seconds": get_idle_time(),
-        "user_active": get_idle_time() < 300, # Active if less than 5 mins idle
+        "user_active": get_idle_time() < 300,
     }
 
 def check_connectivity(host="8.8.8.8", port=53, timeout=3):

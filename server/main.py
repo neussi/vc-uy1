@@ -45,8 +45,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     raise HTTPException(status_code=400, detail="Incorrect username or password")
 
 @app.get("/export/dataset")
-def export_dataset(db: Session = Depends(get_db)):
-    zip_buffer = export.export_dataset_to_zip(db)
+def export_dataset(format: str = "csv", db: Session = Depends(get_db)):
+    zip_buffer = export.export_dataset_to_zip(db, format)
     return StreamingResponse(
         zip_buffer, 
         media_type="application/x-zip-compressed",
@@ -64,10 +64,27 @@ def register_machine(machine: dict, db: Session = Depends(get_db)):
     db.refresh(new_machine)
     return {"status": "registered", "machine_id": new_machine.machine_id}
 
+@app.post("/sessions/start")
+def start_session(session: dict, db: Session = Depends(get_db)):
+    # Parse isoformat dates
+    if 'boot_time' in session:
+        session['boot_time'] = datetime.datetime.fromisoformat(session['boot_time'])
+    
+    db_session = models.Session(**session)
+    db.add(db_session)
+    db.commit()
+    return {"status": "ok", "session_id": db_session.session_id}
+
 @app.post("/sync/snapshots")
 def sync_snapshots(machine_id: str = Body(...), snapshots: List[dict] = Body(...), db: Session = Depends(get_db)):
     try:
-        db_snapshots = [models.Snapshot(machine_id=machine_id, **s) for s in snapshots]
+        db_snapshots = []
+        for s in snapshots:
+            # Parse dates
+            if 'ts_utc' in s: s['ts_utc'] = datetime.datetime.fromisoformat(s['ts_utc'].replace('Z', ''))
+            if 'ts_local' in s: s['ts_local'] = datetime.datetime.fromisoformat(s['ts_local'].replace('Z', ''))
+            db_snapshots.append(models.Snapshot(machine_id=machine_id, **s))
+            
         db.add_all(db_snapshots)
         db.commit()
         return {"status": "ok", "saved_rows": len(snapshots)}

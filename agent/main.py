@@ -1,6 +1,7 @@
 import time
 import sys
-import heartbeat, collector, syncer
+import uuid
+from . import heartbeat, collector, syncer
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -15,10 +16,11 @@ def main():
         logger.warning(f"Power cut detected! Downtime: {status['gap_s']}s")
         # In a real app, send this to the server immediately
     
-    # 2. Register once
+    # 2. Register once and start session
     machine_id = collector.get_machine_id()
-    SERVER_URL = "http://vc-uy1.npe-techs.com/register"
+    session_id = str(uuid.uuid4())
     syncer.register(machine_id)
+    syncer.start_session(machine_id, session_id)
     
     # 3. Main collection loop
     try:
@@ -31,9 +33,9 @@ def main():
             
             # Sync with server
             if stats['is_connected']:
-                syncer.sync_batch(machine_id, [stats])
+                syncer.sync_batch(machine_id, session_id, [stats])
             
-            time.sleep(300) # 5 minutes
+            time.sleep(20) # 20 seconds for live demo verification
     except KeyboardInterrupt:
         logger.info("Shutting down cleanly...")
         heartbeat.write_heartbeat(shutdown_clean=True)
