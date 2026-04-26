@@ -53,6 +53,10 @@ class Snapshot(Base):
     disk_read_mbps = Column(Float)
     disk_write_mbps = Column(Float)
     
+    # Power
+    battery_percent = Column(Float)
+    power_plugged = Column(Boolean)
+
     # Connectivity
     is_connected = Column(Boolean, default=False)
     network_latency_ms = Column(Float)
