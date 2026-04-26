@@ -26,7 +26,7 @@ Description=VC-UY1 Research Agent
 After=network.target
 
 [Service]
-ExecStart="{exe_path}"
+ExecStart="{exe_path}" --foreground
 Restart=always
 RestartSec=10
 
