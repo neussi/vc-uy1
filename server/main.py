@@ -109,7 +109,7 @@ def get_live_data_feed(db: Session = Depends(get_db)):
     # Returns the last 50 data points strictly for the live visualization on homepage
     snapshots = db.query(models.Snapshot).order_by(models.Snapshot.snapshot_id.desc()).limit(50).all()
     # Sanitize to expose only public metrics
-    return [{"id": s.snapshot_id, "timestamp": s.timestamp, "cpu": s.cpu_percent, "ram": s.ram_percent, "battery": s.battery_percent, "plugged": s.power_plugged} for s in snapshots]
+    return [{"id": s.snapshot_id, "timestamp": s.ts_utc.timestamp(), "cpu": s.cpu_percent, "ram": s.ram_percent_used, "battery": s.battery_percent, "plugged": s.power_plugged} for s in snapshots]
 
 # Serve frontend
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
