@@ -1,7 +1,7 @@
 import time
 import sys
 import uuid
-from . import heartbeat, collector, syncer
+import heartbeat, collector, syncer
 import logging
 
 logging.basicConfig(level=logging.INFO)
