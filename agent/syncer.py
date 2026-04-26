@@ -16,6 +16,11 @@ logger = logging.getLogger("VC-Syncer")
 
 SERVER_URL = "https://vc-uy1.npe-techs.com"
 
+def get_verify_path():
+    if getattr(sys, 'frozen', False):
+        return os.path.join(sys._MEIPASS, 'certifi', 'cacert.pem')
+    return certifi.where()
+
 def register(machine_id):
     """Register the machine with the server if not already done."""
     try:
@@ -26,7 +31,7 @@ def register(machine_id):
             "cpu_cores": 4, # Sample
             "ram_total_mb": 8192,
         }
-        response = requests.post(f"{SERVER_URL}/register", json=data, timeout=10)
+        response = requests.post(f"{SERVER_URL}/register", json=data, timeout=10, verify=get_verify_path())
         return response.status_code in [200, 201]
     except Exception as e:
         logger.error(f"Registration failed: {e}")
@@ -40,7 +45,7 @@ def start_session(machine_id, session_id):
             "machine_id": machine_id,
             "boot_time": datetime.datetime.utcnow().isoformat(),
         }
-        response = requests.post(f"{SERVER_URL}/sessions/start", json=data, timeout=10)
+        response = requests.post(f"{SERVER_URL}/sessions/start", json=data, timeout=10, verify=get_verify_path())
         return response.status_code in [200, 201]
     except Exception as e:
         logger.error(f"Session start failed: {e}")
@@ -55,14 +60,14 @@ def report_power_event(machine_id, event_type, gap_s):
         "ts_utc": datetime.datetime.utcnow().isoformat()
     }
     try:
-        requests.post(f"{SERVER_URL}/sync/power-events", json=payload, timeout=10)
+        requests.post(f"{SERVER_URL}/sync/power-events", json=payload, timeout=10, verify=get_verify_path())
     except Exception as e:
         logger.error(f"Failed to report power event: {e}")
 
 def report_task_result(task_data):
     """Report a synthetic task execution result to the server."""
     try:
-        requests.post(f"{SERVER_URL}/sync/tasks", json=task_data, timeout=10)
+        requests.post(f"{SERVER_URL}/sync/tasks", json=task_data, timeout=10, verify=get_verify_path())
     except Exception as e:
         logger.error(f"Failed to report task result: {e}")
 
@@ -77,7 +82,7 @@ def sync_batch(machine_id, session_id, snapshots):
             "machine_id": machine_id,
             "snapshots": snapshots
         }
-        response = requests.post(f"{SERVER_URL}/sync/snapshots", json=payload, timeout=15)
+        response = requests.post(f"{SERVER_URL}/sync/snapshots", json=payload, timeout=15, verify=get_verify_path())
         return response.status_code == 200
     except Exception as e:
         logger.error(f"Sync failed: {e}")

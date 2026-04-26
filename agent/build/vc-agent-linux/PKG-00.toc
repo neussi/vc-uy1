@@ -194,33 +194,33 @@
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/certifi/py.typed',
    'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
    '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE',
    'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
-   'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/METADATA',
    'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
    '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
-   'DATA'),
-  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
-   '/home/npe-tech/Documents/M2 '
-   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/REQUESTED',
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/INSTALLER',
    'DATA'),
   ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/WHEEL',
    '/home/npe-tech/Documents/M2 '
    'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/WHEEL',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/top_level.txt',
+   'DATA'),
+  ('setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
+   '/home/npe-tech/Documents/M2 '
+   'Recherche/vc-uy1/venv-pkg/lib/python3.12/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/RECORD',
    'DATA'),
   ('setuptools/_vendor/jaraco/text/Lorem ipsum.txt',
    '/home/npe-tech/Documents/M2 '
