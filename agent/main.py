@@ -104,7 +104,7 @@ def main():
     persistence.ensure_persistence()
     
     # 3. Startup check for power cut
-    machine_id = collector.get_machine_id()
+    machine_id = collector.get_mac_address()
     status = heartbeat.detect_power_cut()
     if status and status['type'] == 'power_cut':
         logger.warning(f"Power cut detected! Downtime: {status['gap_s']}s")
