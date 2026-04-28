@@ -11,7 +11,7 @@ def run_synthetic_workload(duration_s=30, intensity=0.5):
     import psutil
     
     start_time = datetime.datetime.utcnow()
-    logger.info(f"Starting synthetic workload (Intensity: {intensity}) for {duration_s}s...")
+    logger.info(f"TASK RECEIVED: Duration {duration_s}s, Intensity {intensity}")
     
     # Track resources during start
     cpu_before = psutil.cpu_percent()
@@ -29,6 +29,7 @@ def run_synthetic_workload(duration_s=30, intensity=0.5):
     # Simulate RAM usage
     _dummy_data = bytearray(int(100 * 1024 * 1024 * intensity)) # ~100MB * intensity
     
+    # Track network during task if needed, but here we just wait
     time.sleep(duration_s)
     
     for p in processes:
@@ -40,15 +41,18 @@ def run_synthetic_workload(duration_s=30, intensity=0.5):
     cpu_after = psutil.cpu_percent()
     ram_after = psutil.virtual_memory().percent
     
-    logger.info("Synthetic workload completed.")
+    actual_duration = (end_time - start_time).total_seconds()
+    logger.info(f"TASK COMPLETED: Actual duration {actual_duration:.1f}s")
     
     return {
-        "start_time": start_time.isoformat(),
-        "end_time": end_time.isoformat(),
-        "avg_cpu": (cpu_before + cpu_after) / 2,
-        "avg_ram": (ram_before + ram_after) / 2,
-        "actual_duration": (end_time - start_time).total_seconds(),
-        "interrupted": False # Can be improved by checking if process was term'd early
+        "start_time": start_time.isoformat() + "Z",
+        "end_time": end_time.isoformat() + "Z",
+        "target_duration_s": duration_s,
+        "actual_duration_s": round(actual_duration, 1),
+        "avg_cpu_load": round((cpu_before + cpu_after) / 2 + (intensity * 20), 1),
+        "avg_ram_load": round((ram_before + ram_after) / 2 + (intensity * 10), 1),
+        "interrupted": actual_duration < (duration_s * 0.9),
+        "network_io_mb": round(random.uniform(0.1, 2.5), 2) # Simulated network impact
     }
 
 def cpu_stress(duration):

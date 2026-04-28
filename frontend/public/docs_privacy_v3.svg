@@ -1,0 +1,13 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow_neon" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <path d="M150 40 L60 70 V140 C60 200 100 240 150 260 C200 240 240 200 240 140 V70 L150 40Z" fill="none" stroke="#d4ff00" stroke-width="5" filter="url(#glow_neon)" />
+  <rect x="120" y="130" width="60" height="50" rx="8" fill="none" stroke="#d4ff00" stroke-width="3" />
+  <path d="M135 150 Q150 135 165 150 T150 165 T135 150" fill="none" stroke="#d4ff00" stroke-width="2" opacity="0.8">
+     <animate attributeName="stroke-dasharray" values="0 100; 100 0" dur="3s" repeatCount="Indefinite" />
+  </path>
+</svg>

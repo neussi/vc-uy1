@@ -1,8 +1,19 @@
 import { motion } from 'framer-motion';
 import { Download, CheckCircle2, ShieldAlert, Monitor, Terminal, Database, Activity, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import { Copy, Terminal as TerminalIcon, Check } from 'lucide-react';
 
-const steps = [
+interface Step {
+    title: string;
+    icon: any;
+    desc: string;
+    details?: string[];
+    action?: any;
+    isCommand?: boolean;
+    commands?: string[];
+}
+
+const windowsSteps: Step[] = [
     {
         title: "Démarrage & Pré-requis",
         icon: <ShieldAlert className="neon-text" size={32} />,
@@ -29,9 +40,9 @@ const steps = [
         icon: <Terminal className="neon-text" size={32} />,
         desc: "Exécutez le fichier téléchargé pour activer votre nœud dans le cluster.",
         details: [
-            "Double-cliquez sur 'vc-agent-windows.exe'.",
-            "Un message de bienvenue s'affichera brièvement.",
-            "L'agent se détachera automatiquement en arrière-plan."
+            "Clic-droit sur 'vc-agent-windows.exe'.",
+            "Sélectionnez 'Exécuter en tant qu'administrateur'.",
+            "Indispensable pour l'installation du Service de Persistance."
         ]
     },
     {
@@ -50,15 +61,60 @@ const steps = [
         icon: <CheckCircle2 className="neon-text" size={32} />,
         desc: "Le système est désormais autonome et résistant aux redémarrages.",
         details: [
-            "L'agent s'inscrit dans votre Registre Windows.",
-            "Il se relancera seul à chaque démarrage de votre PC.",
+            "L'agent s'installe comme un 'Service Système' Windows.",
+            "Il se relancera seul dès le démarrage (Boot), même sans login.",
             "Suivez votre contribution en direct sur le Dashboard."
+        ]
+    }
+];
+
+const linuxSteps: Step[] = [
+    {
+        title: "Environnement de Recherche",
+        icon: <TerminalIcon className="neon-text" size={32} />,
+        desc: "L'agent Linux est conçu pour fonctionner nativement sous Ubuntu, Debian et Kali.",
+        details: [
+            "Compatible Glibc 2.31+ (Ubuntu 20.04+).",
+            "Nécessite Python 3.10 ou supérieur.",
+            "Installation via script de bootstrap sécurisé."
+        ]
+    },
+    {
+        title: "Bootstrap de l'Agent",
+        icon: <Database className="neon-text" size={32} />,
+        desc: "Copiez et collez ces 3 commandes pour activer votre nœud immédiatement.",
+        isCommand: true,
+        commands: [
+            "wget -O install-vc.sh https://vc-uy1.npe-techs.com/install-linux.sh",
+            "chmod +x install-vc.sh",
+            "./install-vc.sh"
+        ]
+    },
+    {
+        title: "Activation en Arrière-plan",
+        icon: <Activity className="neon-text" size={32} />,
+        desc: "Une fois lancé, l'agent se détache automatiquement pour ne pas encombrer votre terminal.",
+        details: [
+            "Support natif de systemd pour la persistance.",
+            "Vérification via : systemctl --user status vc-agent",
+            "Auto-update intégré lors de chaque démarrage."
         ]
     }
 ];
 
 export default function InstallationPage() {
     const [currentStep, setCurrentStep] = useState(0);
+    const [os, setOs] = useState<'windows' | 'linux'>('windows');
+    const [copied, setCopied] = useState(false);
+
+    const steps = os === 'windows' ? windowsSteps : linuxSteps;
+
+    const copyAll = () => {
+        const cmds = linuxSteps[1].commands?.join('\n') || '';
+        navigator.clipboard.writeText(cmds);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     return (
         <motion.section
@@ -68,8 +124,26 @@ export default function InstallationPage() {
             style={{ padding: '0 40px' }}
         >
             <div style={{ textAlign: 'center', marginBottom: 50 }}>
-                <h2 className="section-title">Setup Center : <span className="neon-text">Windows Edition</span></h2>
+                <h2 className="section-title">Setup Center : <span className="neon-text">{os === 'windows' ? 'Windows' : 'Linux'} Edition</span></h2>
                 <p style={{ color: '#888', fontSize: 18 }}>Guide de déploiement pour les nœuds de recherche scientifique</p>
+
+                {/* OS Toggle */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 30 }}>
+                    <button
+                        className={os === 'windows' ? 'btn-wow' : 'btn-outline'}
+                        onClick={() => { setOs('windows'); setCurrentStep(0); }}
+                        style={{ width: 180 }}
+                    >
+                        <Monitor size={18} style={{ marginRight: 8 }} /> Windows
+                    </button>
+                    <button
+                        className={os === 'linux' ? 'btn-wow' : 'btn-outline'}
+                        onClick={() => { setOs('linux'); setCurrentStep(0); }}
+                        style={{ width: 180 }}
+                    >
+                        <TerminalIcon size={18} style={{ marginRight: 8 }} /> Linux
+                    </button>
+                </div>
             </div>
 
             <div className="installation-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 40, minHeight: 500 }}>
@@ -119,12 +193,48 @@ export default function InstallationPage() {
                         </p>
 
                         <div className="step-details" style={{ marginBottom: 40 }}>
-                            {steps[currentStep].details?.map((detail, dIdx) => (
-                                <div key={dIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 15, color: '#aaa' }}>
-                                    <div style={{ marginTop: 6, width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-neon)' }} />
-                                    <span>{detail}</span>
+                            {steps[currentStep].isCommand ? (
+                                <div className="terminal-block" style={{
+                                    background: '#0a0a0a',
+                                    padding: '25px',
+                                    borderRadius: '12px',
+                                    border: '1px solid #333',
+                                    position: 'relative'
+                                }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontFamily: 'monospace', color: 'var(--accent-neon)' }}>
+                                        {steps[currentStep].commands?.map((cmd: string, cIdx: number) => (
+                                            <div key={cIdx} style={{ display: 'flex', gap: 15 }}>
+                                                <span style={{ opacity: 0.3 }}>$</span>
+                                                <span>{cmd}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        className="btn-wow"
+                                        onClick={copyAll}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 15,
+                                            right: 15,
+                                            padding: '8px 15px',
+                                            fontSize: 12,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6
+                                        }}
+                                    >
+                                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                                        {copied ? "Copié !" : "Tout Copier"}
+                                    </button>
                                 </div>
-                            ))}
+                            ) : (
+                                steps[currentStep].details?.map((detail, dIdx) => (
+                                    <div key={dIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 15, color: '#aaa' }}>
+                                        <div style={{ marginTop: 6, width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-neon)' }} />
+                                        <span>{detail}</span>
+                                    </div>
+                                ))
+                            )}
                             {steps[currentStep].action}
                         </div>
                     </motion.div>

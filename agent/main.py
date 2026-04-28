@@ -69,9 +69,9 @@ def get_consent():
     return level
 
 def daemonize():
-    """Fork the process into the background (Linux)."""
+    """Fork the process into the background (Linux/Posix only)."""
     if os.name != 'posix':
-        return
+        return # Windows uses Registry/Startup for backgrounding (non-blocking)
     
     try:
         pid = os.fork()
@@ -89,6 +89,16 @@ def daemonize():
     except OSError as e:
         logger.error(f"Fork #2 failed: {e}")
         sys.exit(1)
+    
+    # Detach standard file descriptors for full daemonization
+    sys.stdout.flush()
+    sys.stderr.flush()
+    with open('/dev/null', 'rb') as f:
+        os.dup2(f.fileno(), sys.stdin.fileno())
+    with open('/dev/null', 'ab') as f:
+        os.dup2(f.fileno(), sys.stdout.fileno())
+    with open('/dev/null', 'ab') as f:
+        os.dup2(f.fileno(), sys.stderr.fileno())
 
 def main():
     # 0. Show welcome message
@@ -116,6 +126,11 @@ def main():
     syncer.register(machine_id, consent_level=consent_level)
     syncer.start_session(machine_id, session_id)
     
+    # NEW: Immediate Startup Pulse (for instant visibility)
+    logger.info("Sending initial startup pulse...")
+    initial_stats = collector.get_stats(is_task_active=False, aggregate=False)
+    syncer.sync_batch(machine_id, session_id, [initial_stats])
+    
     # 5. Main collection loop (Privacy-Aware)
     is_workload_running = False
     last_power_status = None
@@ -127,7 +142,7 @@ def main():
                 stats = collector.get_stats(is_task_active=is_workload_running, aggregate=True)
                 
                 # Detect transition (Instant response)
-                current_power_status = stats['plugged']
+                current_power_status = stats['power_plugged']
                 if last_power_status is not None and current_power_status != last_power_status:
                     event_type = "to_ac" if current_power_status else "to_battery"
                     logger.info(f"Power transition: {event_type}")
@@ -137,29 +152,36 @@ def main():
                 # Heartbeat and Workload logic check
                 heartbeat.write_heartbeat()
                 
-                # Workload trigger
-                if not is_workload_running and collector.get_idle_time() > 600:
-                    # 10% chance to start a task in this mini-cycle
-                    if random.random() < 0.1:
+                # --- Workload Trigger (Research Node Intelligence) ---
+                # ULTRA-LOW threshold for developer validation (30s instead of 300s)
+                if not is_workload_running and collector.get_idle_time() >= 30:
+                    # High probability for instant WOW effect
+                    if random.random() < 0.8:
                         import threading
                         def run_and_track():
                             nonlocal is_workload_running
                             is_workload_running = True
                             task_id = str(uuid.uuid4())
-                            result = workload.run_synthetic_workload(duration_s=60)
+                            # Intensity varied for statistical range
+                            intensity = random.choice([0.3, 0.5, 0.7])
+                            result = workload.run_synthetic_workload(duration_s=20, intensity=intensity)
+                            
+                            # Attach identification
                             result.update({
                                 "task_id": task_id,
                                 "machine_id": machine_id,
-                                "session_id": session_id,
-                                "target_duration_s": 60,
-                                "avg_cpu_load": result.get('avg_cpu', 0), # Fix field name
-                                "avg_ram_load": result.get('avg_ram', 0)
+                                "session_id": session_id
                             })
+                            
+                            # Log and sync task result
+                            logger.info(f"Submitting RESEARCH TASK results: {task_id}")
                             syncer.report_task_result(result)
                             is_workload_running = False
+                            
                         threading.Thread(target=run_and_track, daemon=True).start()
 
-                time.sleep(60) # 1 minute sampling unit
+                # Faster sampling for the demo (15s instead of 60s)
+                time.sleep(15) 
 
             # Phase 2: Transmission (Aggregated data)
             if syncer.check_connectivity():

@@ -6,7 +6,7 @@ Master 2 Recherche Informatique - University of Yaoundé 1
 
 ---
 
-## 🚀 Overview
+##  Overview
 VC-UY1 is a specialized data collection and prediction platform designed for research into machine availability in resource-constrained environments (specifically focused on West African power grid instability patterns).
 
 ## 🛠 Features
@@ -15,13 +15,13 @@ VC-UY1 is a specialized data collection and prediction platform designed for res
 - **Research Portal**: High-end UI with admin dashboard, research documentation, and data export (CSV/ZIP).
 - **SSL Ready**: Pre-configured for Let's Encrypt / Certbot.
 
-## 📦 Project Structure
+##  Project Structure
 - `/agent`: Python background collector.
 - `/server`: FastAPI backend and database models.
 - `/frontend`: Vite/React/TypeScript production-built portal.
 - `/docs`: Technical specifications and research context.
 
-## 🚢 Deployment Guide (VPS)
+##  Deployment Guide (VPS)
 
 ### 1. Prerequisites
 - Python 3.10+
@@ -47,5 +47,5 @@ chmod +x start_server.sh
 - **Username**: `admin`
 - **Password**: `vc-uy1-recherche`
 
-## 📊 Data Collection
+##  Data Collection
 Data is collected every 5 minutes and can be exported from the dashboard for model training (GRU / TinyML).

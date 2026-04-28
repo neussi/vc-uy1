@@ -9,6 +9,10 @@ import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel, EmailStr
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import os
 
 app = FastAPI(title="VC-UY1 Central Server")
@@ -59,7 +63,20 @@ def register_machine(machine: dict, db: Session = Depends(get_db)):
     db_machine = db.query(models.Machine).filter(models.Machine.machine_id == machine['machine_id']).first()
     if db_machine:
         return {"status": "exists", "machine_id": db_machine.machine_id}
-    new_machine = models.Machine(**machine)
+    
+    # Map fields to model (handling agent/server mismatches)
+    model_data = {
+        "machine_id": machine.get('machine_id'),
+        "os": machine.get('os', 'unknown'),
+        "hostname_hash": machine.get('hostname_hash') or machine.get('hostname', 'unknown'),
+        "cpu_cores": machine.get('cpu_cores', 0),
+        "ram_total_mb": int(machine.get('ram_total_mb') or (machine.get('ram_gb', 0) * 1024)),
+        "timezone": machine.get('timezone', 'UTC'),
+        "city": machine.get('city', 'Unknown'),
+        "consent_level": machine.get('consent_level', 1)
+    }
+    
+    new_machine = models.Machine(**model_data)
     db.add(new_machine)
     db.commit()
     db.refresh(new_machine)
@@ -109,8 +126,36 @@ def get_live_stats(db: Session = Depends(get_db)):
 def get_live_data_feed(db: Session = Depends(get_db)):
     # Returns the last 50 data points strictly for the live visualization on homepage
     snapshots = db.query(models.Snapshot).order_by(models.Snapshot.snapshot_id.desc()).limit(50).all()
-    # Sanitize to expose only public metrics
-    return [{"id": s.snapshot_id, "timestamp": s.ts_utc.timestamp(), "cpu": s.cpu_percent, "ram": s.ram_percent_used, "battery": s.battery_percent, "plugged": s.power_plugged} for s in snapshots]
+    # Sanitize to expose only public metrics including IO
+    return [{
+        "id": s.snapshot_id, 
+        "timestamp": s.ts_utc.timestamp(), 
+        "cpu": s.cpu_percent, 
+        "ram": s.ram_percent_used, 
+        "battery": s.battery_percent, 
+        "plugged": s.power_plugged,
+        "net_sent": s.bytes_sent_kb,
+        "net_recv": s.bytes_recv_kb,
+        "disk_read": s.disk_read_mbps,
+        "disk_write": s.disk_write_mbps
+    } for s in snapshots]
+
+@app.get("/tasks/recent")
+def get_recent_tasks(db: Session = Depends(get_db)):
+    tasks = db.query(models.TaskResult).order_by(models.TaskResult.end_time.desc()).limit(10).all()
+    return [{
+        "task_id": t.task_id,
+        "machine_id": t.machine_id,
+        "session_id": t.session_id,
+        "start_time": t.start_time.isoformat() if t.start_time else None,
+        "end_time": t.end_time.isoformat() if t.end_time else None,
+        "target_duration_s": t.target_duration_s,
+        "actual_duration_s": t.actual_duration_s,
+        "interrupted": t.interrupted,
+        "avg_cpu_load": t.avg_cpu_load,
+        "avg_ram_load": t.avg_ram_load,
+        "network_io_mb": t.network_io_mb
+    } for t in tasks]
 
 @app.post("/sync/power-events")
 def sync_power_events(event: dict = Body(...), db: Session = Depends(get_db)):
@@ -139,6 +184,45 @@ def export_data(format: str = "csv", db: Session = Depends(get_db)):
         media_type="application/x-zip-compressed",
         headers={"Content-Disposition": f"attachment; filename=vc_uy1_dataset_{format}.zip"}
     )
+
+class ContactForm(BaseModel):
+    name: str
+    email: EmailStr
+    subject: str
+    message: str
+
+def send_contact_email(data: ContactForm):
+    # Credentials provided by USER
+    SMTP_HOST = "smtp.gmail.com"
+    SMTP_PORT = 587
+    SMTP_USER = "npe.techs@gmail.com"
+    SMTP_PASS = "dtbl pdrr sodx bcmt"
+    
+    msg = MIMEMultipart()
+    msg['From'] = SMTP_USER
+    msg['To'] = SMTP_USER # Send to the PI
+    msg['Subject'] = f"[VC-UY1 CONTACT] {data.subject} - De {data.name}"
+    
+    body = f"Expéditeur: {data.name} ({data.email})\n\nSujet: {data.subject}\n\nMessage:\n{data.message}"
+    msg.attach(MIMEText(body, 'plain'))
+    
+    try:
+        server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_USER, SMTP_PASS)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"SMTP Error: {e}")
+        return False
+
+@app.post("/contact")
+async def handle_contact(data: ContactForm):
+    if send_contact_email(data):
+        return {"status": "ok", "message": "Email en cours d'envoi"}
+    else:
+        raise HTTPException(status_code=500, detail="Erreur lors de l'envoi de l'email")
 
 @app.post("/sync/tasks")
 def sync_task_results(task: dict = Body(...), db: Session = Depends(get_db)):

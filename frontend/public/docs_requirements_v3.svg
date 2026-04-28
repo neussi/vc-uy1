@@ -1,0 +1,16 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow_neon" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect x="80" y="60" width="140" height="180" rx="10" fill="none" stroke="#d4ff00" stroke-width="4" filter="url(#glow_neon)" />
+  <rect x="95" y="80" width="110" height="70" rx="4" fill="#d4ff00" opacity="0.1" stroke="#d4ff00" stroke-width="2" />
+  <path d="M105 100 H195 M105 115 H160 M105 130 H180" stroke="#d4ff00" stroke-width="1.5" opacity="0.4" />
+  <circle cx="120" cy="180" r="15" fill="none" stroke="#d4ff00" stroke-width="2" opacity="0.5">
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="Indefinite" />
+  </circle>
+  <rect x="150" y="170" width="40" height="10" rx="2" fill="#d4ff00" opacity="0.2" />
+  <rect x="150" y="190" width="40" height="10" rx="2" fill="#d4ff00" opacity="0.2" />
+</svg>

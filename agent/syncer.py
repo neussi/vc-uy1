@@ -11,6 +11,10 @@ import time
 import psutil
 import platform
 
+def check_connectivity():
+    """Proxy to collector connectivity check."""
+    return collector.check_connectivity()
+
 # Fix for PyInstaller one-file bundled execution certificate resolution
 if getattr(sys, 'frozen', False):
     # This ensures requests finds the CA bundle inside the temp MEI directory

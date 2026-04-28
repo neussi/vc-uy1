@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, CheckCircle2, ShieldAlert, Mail } from 'lucide-react';
 import './App.css';
 
 // --- ANIMATION VARIANTS ---
@@ -34,6 +34,8 @@ function Nav() {
         <NavLink to="/about" active={location.pathname === '/about'} icon={<Info size={16} />}>About</NavLink>
         <NavLink to="/documentation" active={location.pathname === '/documentation'} icon={<Book size={16} />}>Spec</NavLink>
         <NavLink to="/volunteers" active={location.pathname === '/volunteers'} icon={<Download size={16} />}>Join</NavLink>
+        <NavLink to="/docs" active={location.pathname === '/docs'} icon={<Lock size={16} />}>Transparency</NavLink>
+        <NavLink to="/contact" active={location.pathname === '/contact'} icon={<Mail size={16} />}>Contact</NavLink>
         {isLogged ? (
           <NavLink to="/dashboard" active={location.pathname === '/dashboard'} icon={<Activity size={16} />} className="neon-text">Dashboard</NavLink>
         ) : (
@@ -277,6 +279,8 @@ function VolunteersPage() {
 
 import DashboardPage from './pages/Dashboard';
 import InstallationPage from './pages/Installation';
+import DocumentationPage from './pages/Documentation';
+import ContactPage from './pages/Contact';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
@@ -329,6 +333,8 @@ function App() {
               <Route path="/documentation" element={<LandingPage />} /> {/* Placeholder to avoid 404 in dev */}
               <Route path="/volunteers" element={<VolunteersPage />} />
               <Route path="/install/windows" element={<InstallationPage />} />
+              <Route path="/docs" element={<DocumentationPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
             </Routes>

@@ -1,43 +1,58 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, Database, ShieldCheck, Activity, HardDrive } from 'lucide-react';
+import { Download, Database, Activity, HardDrive, Wifi, CheckCircle2, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE'];
+const COLORS = ['#d4ff00', '#00f2ff', '#ff00f2', '#8884d8'];
 
 export default function DashboardPage() {
     const [chartData, setChartData] = useState<any[]>([]);
     const [detailedStats, setDetailedStats] = useState<any>({ os_distribution: [], total_machines: 0, total_snapshots: 0, availability_avg: 99.8 });
+    const [recentTasks, setRecentTasks] = useState<any[]>([]);
     const [exportFormat, setExportFormat] = useState("csv");
 
+    const fetchDashboardData = async () => {
+        try {
+            const res = await fetch('/feed');
+            if (res.ok) {
+                const data = await res.json();
+                const formatted = data.map((d: any) => ({
+                    time: new Date(d.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                    cpu: d.cpu,
+                    ram: d.ram,
+                    net_sent: d.net_sent || 0,
+                    net_recv: d.net_recv || 0,
+                    disk: (d.disk_read || 0) + (d.disk_write || 0)
+                })).reverse();
+                setChartData(formatted);
+            }
+            const resDetailed = await fetch('/stats/detailed');
+            if (resDetailed.ok) {
+                const data = await resDetailed.json();
+                setDetailedStats(data);
+            }
+            const resTasks = await fetch('/tasks/recent');
+            if (resTasks.ok) {
+                const data = await resTasks.json();
+                setRecentTasks(data);
+            }
+        } catch (e) { }
+    };
+
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const res = await fetch('/feed');
-                if (res.ok) {
-                    const data = await res.json();
-                    const formatted = data.map((d: any) => ({
-                        time: new Date(d.timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                        cpu: d.cpu,
-                        ram: d.ram
-                    })).reverse();
-                    setChartData(formatted);
-                }
-                const resDetailed = await fetch('/stats/detailed');
-                if (resDetailed.ok) {
-                    const data = await resDetailed.json();
-                    setDetailedStats(data);
-                }
-            } catch (e) { }
-        };
         fetchDashboardData();
-        const interval = setInterval(fetchDashboardData, 3000);
+        const interval = setInterval(fetchDashboardData, 5000);
         return () => clearInterval(interval);
     }, []);
 
     const handleExport = () => {
         window.location.href = `/export?format=${exportFormat}`;
     };
+
+    const latestSnap = chartData[chartData.length - 1] || {};
+    // Find best non-zero IO reading from feed for display cards
+    const bestSnap = chartData.slice().reverse().find((d: any) => (d.net_sent || 0) > 0 || (d.disk || 0) > 0) || latestSnap;
+
 
     return (
         <motion.div
@@ -61,11 +76,11 @@ export default function DashboardPage() {
                 </div>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20, marginBottom: 30 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 30 }}>
                 <DashStat title="Total Nodes" value={detailedStats.total_machines} sub="Enrolled participants" icon={<Database />} />
                 <DashStat title="Data Snapshots" value={detailedStats.total_snapshots} sub="Unique records" icon={<HardDrive />} />
-                <DashStat title="Uptime Avg" value={`${detailedStats.availability_avg}%`} sub="Global persistence" icon={<ShieldCheck />} />
-                <DashStat title="Sync Efficiency" value="99.9%" sub="Zero-loss sync" icon={<Activity />} />
+                <DashStat title="Net Outbound" value={`${bestSnap.net_sent || 0} KB`} sub="Peak uplink this session" icon={<Wifi />} color="#00f2ff" />
+                <DashStat title="Disk Throughput" value={`${bestSnap.disk || 0} MB/s`} sub="Peak IO this session" icon={<Activity />} color="#ff00f2" />
             </div>
 
             <div className="responsive-flex" style={{ display: 'flex', gap: 30, marginBottom: 30 }}>
@@ -128,17 +143,73 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            <div className="card-glass" style={{ marginBottom: 30 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <CheckCircle2 color="var(--accent-neon)" size={20} /> Recent Mission Accomplishments
+                    </h3>
+                    <span style={{ fontSize: 12, opacity: 0.6 }}>Deterministic Research Tasks</span>
+                </div>
+                <div className="table-container" style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                        <thead>
+                            <tr style={{ textAlign: 'left', borderBottom: '1px solid #222', color: '#888' }}>
+                                <th style={{ padding: '15px 10px' }}>Task ID</th>
+                                <th style={{ padding: '15px 10px' }}>Target / Actual</th>
+                                <th style={{ padding: '15px 10px' }}>Avg CPU/RAM</th>
+                                <th style={{ padding: '15px 10px' }}>NW Impact</th>
+                                <th style={{ padding: '15px 10px' }}>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {recentTasks.map((t, i) => (
+                                <tr key={i} style={{ borderBottom: '1px solid #111' }}>
+                                    <td style={{ padding: '15px 10px', fontSize: 12, fontFamily: 'monospace', color: '#aaa' }}>{t.task_id.substring(0, 8)}...</td>
+                                    <td style={{ padding: '15px 10px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                                            <Clock size={12} opacity={0.5} /> {t.target_duration_s}s / <b>{t.actual_duration_s}s</b>
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '15px 10px' }}>
+                                        <span style={{ color: 'var(--accent-neon)' }}>{t.avg_cpu_load}%</span> / <span style={{ color: '#8884d8' }}>{t.avg_ram_load}%</span>
+                                    </td>
+                                    <td style={{ padding: '15px 10px' }}>{t.network_io_mb} MB</td>
+                                    <td style={{ padding: '15px 10px' }}>
+                                        <span style={{
+                                            background: t.interrupted ? 'rgba(255,0,0,0.1)' : 'rgba(212,255,0,0.1)',
+                                            color: t.interrupted ? '#ff4444' : 'var(--accent-neon)',
+                                            padding: '4px 10px',
+                                            borderRadius: 20,
+                                            fontSize: 10,
+                                            fontWeight: 'bold',
+                                            textTransform: 'uppercase'
+                                        }}>
+                                            {t.interrupted ? 'Interrupted' : 'Completed'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                            {recentTasks.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} style={{ padding: 40, textAlign: 'center', opacity: 0.4 }}>No research tasks recorded today. Waiting for node idle state...</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </motion.div>
     );
 }
 
-function DashStat({ title, value, sub, icon }: any) {
+function DashStat({ title, value, sub, icon, color }: any) {
     return (
         <div className="card-glass" style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '25px' }}>
-            <div className="neon-text" style={{ transform: 'scale(1.2)' }}>{icon}</div>
+            <div className="neon-text" style={{ transform: 'scale(1.2)', color: color || 'var(--accent-neon)' }}>{icon}</div>
             <div>
                 <div style={{ fontSize: 11, opacity: 0.5, textTransform: 'uppercase', letterSpacing: 1 }}>{title}</div>
-                <div className="stat-value" style={{ fontSize: 28, fontWeight: 'bold' }}>{value}</div>
+                <div className="stat-value" style={{ fontSize: 24, fontWeight: 'bold' }}>{value}</div>
                 <div style={{ fontSize: 11, color: '#666' }}>{sub}</div>
             </div>
         </div>
