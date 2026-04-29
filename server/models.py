@@ -62,8 +62,8 @@ class Snapshot(Base):
     # Connectivity
     is_connected = Column(Boolean, default=False)
     network_latency_ms = Column(Float)
-    bytes_sent_kb = Column(Integer)
-    bytes_recv_kb = Column(Integer)
+    bytes_sent_kb = Column(Float)
+    bytes_recv_kb = Column(Float)
     
     # User activity
     user_active = Column(Boolean)
