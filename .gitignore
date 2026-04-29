@@ -1,5 +1,6 @@
 # Environments
 venv*/
+build_venv/
 .env
 __pycache__/
 *.pyc
@@ -12,6 +13,8 @@ frontend/dist
 # PyInstaller
 agent/build/
 agent/dist/
+build/
+dist/
 *.spec
 
 # Database
