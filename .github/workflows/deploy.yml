@@ -88,5 +88,7 @@ jobs:
 
             # Restart backend
             pkill -f 'gunicorn.*server.main' || true
-            sleep 1
-            bash start_server.sh &
+            sleep 2
+            nohup bash start_server.sh > server_boot.log 2>&1 &
+            sleep 2
+            echo "Deployment finalized successfully."
