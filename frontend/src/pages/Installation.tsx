@@ -1,6 +1,6 @@
 // V3.2.1 - Cluster Ready
 import { motion } from 'framer-motion';
-import { Download, CheckCircle2, ShieldAlert, Monitor, Terminal, Database, Activity, ArrowRight, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, Monitor, Terminal, Database, Activity, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { Copy, Terminal as TerminalIcon, Check } from 'lucide-react';
 
