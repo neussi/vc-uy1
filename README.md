@@ -37,7 +37,7 @@ sudo certbot --apache -d vc-uy1.npe-techs.com
 ```
 
 ### 3. Service Management
-To start the backend server on port 76123:
+To start the backend server on port 6123:
 ```bash
 chmod +x start_server.sh
 ./start_server.sh

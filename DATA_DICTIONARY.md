@@ -36,7 +36,8 @@ Toutes ces données sont effectivement collectées par l'agent et disponibles da
 | `power_plugged` | Branché sur secteur (Vrai/Faux) | Étabilité de la source d'énergie. |
 | **Connectivité** | | |
 | `network_latency_ms`| Latence vers le serveur central | Qualité de l'infrastructure réseau. |
-| `bytes_sent/recv` | Volume de données échangées | Coût réseau du volontariat. |
+| `bytes_sent_kb`    | Données envoyées (Float KB)     | Coût réseau du volontariat. |
+| `bytes_recv_kb`    | Données reçues (Float KB)      | Coût réseau du volontariat. |
 | **Activité** | | |
 | `idle_seconds` | Temps depuis la dernière action user | Opportunité de calcul en arrière-plan. |
 | `user_active` | Utilisateur actif (Vrai/Faux) | Priorité d'ordonnancement. |
