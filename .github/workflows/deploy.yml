@@ -21,14 +21,14 @@ jobs:
           npm install
           npm run build
 
-      - name: Sync Code via SSH
+      - name: Deploy and Restart
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script_stop: true
-          command_timeout: 10m
+          command_timeout: 15m
           script: |
             mkdir -p /var/www/vc-uy1
             cd /var/www/vc-uy1
@@ -38,6 +38,9 @@ jobs:
               git fetch --all
               git reset --hard origin/main
             fi
+            
+            # Use scp-like overlay manually via git or just wait for scp action
+            # Actually, we still need to upload the 'dist' folder from the runner
 
       - name: Overlay Distribution
         uses: appleboy/scp-action@master
@@ -45,50 +48,19 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          timeout: 5m
+          timeout: 10m
           source: "frontend/dist"
           target: "/var/www/vc-uy1/frontend"
           strip_components: 1
 
-      - name: Finalize Infrastructure
+      - name: Finalize
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd /var/www/vc-uy1
-
-            # Copy agent source files into dist for download
-            mkdir -p frontend/dist/agent
-            cp agent/collector.py frontend/dist/agent/
-            cp agent/syncer.py frontend/dist/agent/
-            cp agent/workload.py frontend/dist/agent/
-            cp agent/main.py frontend/dist/agent/
-            cp agent/persistence.py frontend/dist/agent/
-            cp agent/heartbeat.py frontend/dist/agent/
-
-            # Copy install script and vc-agent-linux wrapper
-            cp public/install-linux.sh frontend/dist/install-linux.sh
-            cp public/install-linux.sh frontend/dist/vc-agent-linux
-
-            # Fix permissions
-            chown -R www-data:www-data frontend/dist/
-            chmod -R 755 frontend/dist/
-            chmod +x start_server.sh
-
-            # Install server dependencies if needed
-            if [ ! -d venv-server ]; then
-              python3 -m venv venv-server
-            fi
-            ./venv-server/bin/pip install -q fastapi uvicorn sqlalchemy gunicorn pandas psutil requests 'pydantic[email]' python-multipart
-
-            # Reload Apache
-            systemctl reload apache2
-
-            # Restart backend
-            pkill -f 'gunicorn.*server.main' || true
+            # Run the detached redeploy script
+            nohup bash /var/www/vc-uy1/redeploy.sh > /dev/null 2>&1 &
             sleep 2
-            setsid bash start_server.sh > server_boot.log 2>&1 < /dev/null &
-            sleep 2
-            echo "Deployment finalized and detached."
+            echo "Deployment triggered."
