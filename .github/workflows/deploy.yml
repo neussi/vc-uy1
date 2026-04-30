@@ -58,9 +58,35 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/vc-uy1
-            # Ensure proper permissions
+
+            # Copy agent source files into dist for download
+            mkdir -p frontend/dist/agent
+            cp agent/collector.py frontend/dist/agent/
+            cp agent/syncer.py frontend/dist/agent/
+            cp agent/workload.py frontend/dist/agent/
+            cp agent/main.py frontend/dist/agent/
+            cp agent/persistence.py frontend/dist/agent/
+            cp agent/heartbeat.py frontend/dist/agent/
+
+            # Copy install script and vc-agent-linux wrapper
+            cp public/install-linux.sh frontend/dist/install-linux.sh
+            cp public/install-linux.sh frontend/dist/vc-agent-linux
+
+            # Fix permissions
+            chown -R www-data:www-data frontend/dist/
+            chmod -R 755 frontend/dist/
             chmod +x start_server.sh
-            # Reload Apache for SSL/Reverse Proxy
+
+            # Install server dependencies if needed
+            if [ ! -d venv-server ]; then
+              python3 -m venv venv-server
+            fi
+            ./venv-server/bin/pip install -q fastapi uvicorn sqlalchemy gunicorn pandas psutil requests 'pydantic[email]' python-multipart
+
+            # Reload Apache
             systemctl reload apache2
-            # Restart Application
+
+            # Restart backend
+            pkill -f 'gunicorn.*server.main' || true
+            sleep 1
             bash start_server.sh &
