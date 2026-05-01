@@ -111,6 +111,18 @@ class TaskResult(Base):
     machine = relationship("Machine")
     session = relationship("Session")
 
+class ActiveTask(Base):
+    __tablename__ = 'active_tasks'
+    task_id = Column(String, primary_key=True)
+    machine_id = Column(String, ForeignKey('machines.machine_id'), nullable=False)
+    session_id = Column(String, ForeignKey('sessions.session_id'), nullable=False)
+    start_time = Column(DateTime, default=datetime.datetime.utcnow)
+    target_duration_s = Column(Integer, nullable=False)
+    progress_percent = Column(Float, default=0.0)
+    last_update = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    machine = relationship("Machine")
+
 class SyncLog(Base):
     __tablename__ = 'sync_log'
     sync_id = Column(Integer, primary_key=True, autoincrement=True)

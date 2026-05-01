@@ -9,6 +9,8 @@ export default function DashboardPage() {
     const [chartData, setChartData] = useState<any[]>([]);
     const [detailedStats, setDetailedStats] = useState<any>({ os_distribution: [], total_machines: 0, total_snapshots: 0, availability_avg: 99.8 });
     const [recentTasks, setRecentTasks] = useState<any[]>([]);
+    const [activeTasks, setActiveTasks] = useState<any[]>([]);
+    const [machineList, setMachineList] = useState<any[]>([]);
     const [exportFormat, setExportFormat] = useState("csv");
 
     const fetchDashboardData = async () => {
@@ -35,6 +37,16 @@ export default function DashboardPage() {
             if (resTasks.ok) {
                 const data = await resTasks.json();
                 setRecentTasks(data);
+            }
+            const resActive = await fetch('/tasks/active');
+            if (resActive.ok) {
+                const data = await resActive.json();
+                setActiveTasks(data);
+            }
+            const resMachines = await fetch('/machines/list');
+            if (resMachines.ok) {
+                const data = await resMachines.json();
+                setMachineList(data);
             }
         } catch (e) { }
     };
@@ -144,57 +156,117 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="card-glass" style={{ marginBottom: 30 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <CheckCircle2 color="var(--accent-neon)" size={20} /> Recent Mission Accomplishments
-                    </h3>
-                    <span style={{ fontSize: 12, opacity: 0.6 }}>Deterministic Research Tasks</span>
+            <div className="responsive-flex" style={{ display: 'flex', gap: 30, marginBottom: 30 }}>
+                {/* ACTIVE TASKS */}
+                <div className="card-glass" style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <Activity color="var(--accent-neon)" size={20} /> Ongoing Research Tasks
+                        </h3>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+                        {activeTasks.map((t, i) => (
+                            <div key={i} className="card-glass" style={{ padding: '15px', background: 'rgba(0,0,0,0.2)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12 }}>
+                                    <span style={{ fontFamily: 'monospace' }}>Task: {t.task_id.substring(0, 8)}</span>
+                                    <span className="neon-text">{t.progress}%</span>
+                                </div>
+                                <div style={{ height: 6, background: '#222', borderRadius: 3, overflow: 'hidden' }}>
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${t.progress}%` }}
+                                        style={{ height: '100%', background: 'var(--accent-neon)', boxShadow: '0 0 10px var(--accent-neon)' }}
+                                    />
+                                </div>
+                                <div style={{ marginTop: 8, fontSize: 10, color: '#666', textAlign: 'right' }}>
+                                    Target: {t.target}s | Started: {new Date(t.start_time).toLocaleTimeString()}
+                                </div>
+                            </div>
+                        ))}
+                        {activeTasks.length === 0 && (
+                            <div style={{ padding: 30, textAlign: 'center', opacity: 0.4, fontSize: 14 }}>
+                                No tasks currently in progress.
+                            </div>
+                        )}
+                    </div>
                 </div>
+
+                {/* RECENT TASKS */}
+                <div className="card-glass" style={{ flex: 2 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <CheckCircle2 color="var(--accent-neon)" size={20} /> Recent Mission Accomplishments
+                        </h3>
+                    </div>
+                    <div className="table-container" style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                            <thead>
+                                <tr style={{ textAlign: 'left', borderBottom: '1px solid #222', color: '#888' }}>
+                                    <th style={{ padding: '10px' }}>Task ID</th>
+                                    <th style={{ padding: '10px' }}>Duration</th>
+                                    <th style={{ padding: '10px' }}>Avg Load</th>
+                                    <th style={{ padding: '10px' }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {recentTasks.map((t, i) => (
+                                    <tr key={i} style={{ borderBottom: '1px solid #111' }}>
+                                        <td style={{ padding: '10px', fontSize: 11, fontFamily: 'monospace', color: '#aaa' }}>{t.task_id.substring(0, 8)}</td>
+                                        <td style={{ padding: '10px' }}>{t.actual_duration_s}s</td>
+                                        <td style={{ padding: '10px' }}>{t.avg_cpu_load}% CPU</td>
+                                        <td style={{ padding: '10px' }}>
+                                            <span style={{ color: t.interrupted ? '#ff4444' : 'var(--accent-neon)', fontSize: 10, fontWeight: 'bold' }}>
+                                                {t.interrupted ? 'FAIL' : 'OK'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {/* MACHINE LIST */}
+            <div className="card-glass" style={{ marginBottom: 30 }}>
+                <h3 style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Database className="neon-text" size={20} /> Cluster Nodes & Contributions
+                </h3>
                 <div className="table-container" style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                         <thead>
                             <tr style={{ textAlign: 'left', borderBottom: '1px solid #222', color: '#888' }}>
-                                <th style={{ padding: '15px 10px' }}>Task ID</th>
-                                <th style={{ padding: '15px 10px' }}>Target / Actual</th>
-                                <th style={{ padding: '15px 10px' }}>Avg CPU/RAM</th>
-                                <th style={{ padding: '15px 10px' }}>NW Impact</th>
-                                <th style={{ padding: '15px 10px' }}>Status</th>
+                                <th style={{ padding: '15px 10px' }}>Machine ID (Anonymized)</th>
+                                <th style={{ padding: '15px 10px' }}>OS</th>
+                                <th style={{ padding: '15px 10px' }}>Snapshots</th>
+                                <th style={{ padding: '15px 10px' }}>Tasks Done</th>
+                                <th style={{ padding: '15px 10px' }}>Hardware</th>
+                                <th style={{ padding: '15px 10px' }}>Last Seen</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {recentTasks.map((t, i) => (
+                            {machineList.map((m, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #111' }}>
-                                    <td style={{ padding: '15px 10px', fontSize: 12, fontFamily: 'monospace', color: '#aaa' }}>{t.task_id.substring(0, 8)}...</td>
-                                    <td style={{ padding: '15px 10px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                            <Clock size={12} opacity={0.5} /> {t.target_duration_s}s / <b>{t.actual_duration_s}s</b>
-                                        </div>
+                                    <td style={{ padding: '15px 10px', fontFamily: 'monospace', fontSize: 12 }}>
+                                        {m.machine_id.substring(0, 16)}...
+                                    </td>
+                                    <td style={{ padding: '15px 10px', textTransform: 'capitalize' }}>
+                                        {m.os === 'windows' ? '🪟 Windows' : '🐧 Linux'}
                                     </td>
                                     <td style={{ padding: '15px 10px' }}>
-                                        <span style={{ color: 'var(--accent-neon)' }}>{t.avg_cpu_load}%</span> / <span style={{ color: '#8884d8' }}>{t.avg_ram_load}%</span>
+                                        <span className="neon-text" style={{ fontWeight: 'bold' }}>{m.snapshots}</span>
                                     </td>
-                                    <td style={{ padding: '15px 10px' }}>{t.network_io_mb} MB</td>
                                     <td style={{ padding: '15px 10px' }}>
-                                        <span style={{
-                                            background: t.interrupted ? 'rgba(255,0,0,0.1)' : 'rgba(212,255,0,0.1)',
-                                            color: t.interrupted ? '#ff4444' : 'var(--accent-neon)',
-                                            padding: '4px 10px',
-                                            borderRadius: 20,
-                                            fontSize: 10,
-                                            fontWeight: 'bold',
-                                            textTransform: 'uppercase'
-                                        }}>
-                                            {t.interrupted ? 'Interrupted' : 'Completed'}
-                                        </span>
+                                        <span style={{ color: '#00f2ff', fontWeight: 'bold' }}>{m.tasks}</span>
+                                    </td>
+                                    <td style={{ padding: '15px 10px', color: '#888', fontSize: 12 }}>
+                                        {m.cores} Cores / {Math.round(m.ram / 1024)}GB
+                                    </td>
+                                    <td style={{ padding: '15px 10px', color: '#aaa', fontSize: 12 }}>
+                                        {m.last_seen ? new Date(m.last_seen).toLocaleString() : 'N/A'}
                                     </td>
                                 </tr>
                             ))}
-                            {recentTasks.length === 0 && (
-                                <tr>
-                                    <td colSpan={5} style={{ padding: 40, textAlign: 'center', opacity: 0.4 }}>No research tasks recorded today. Waiting for node idle state...</td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>

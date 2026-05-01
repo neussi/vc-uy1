@@ -83,6 +83,25 @@ def report_task_result(task_data):
     except Exception as e:
         logger.error(f"Failed to report task result: {e}")
 
+def notify_task_start(task_id, machine_id, session_id, target_duration):
+    """Notify the server that a research task has started."""
+    try:
+        data = {
+            "task_id": task_id,
+            "machine_id": machine_id,
+            "session_id": session_id,
+            "target_duration_s": target_duration
+        }
+        requests.post(f"{SERVER_URL}/tasks/start", json=data, timeout=10, verify=get_verify_path())
+    except: pass
+
+def update_task_progress(task_id, progress):
+    """Update task progress on the server."""
+    try:
+        data = {"task_id": task_id, "progress": progress}
+        requests.patch(f"{SERVER_URL}/tasks/update", json=data, timeout=5, verify=get_verify_path())
+    except: pass
+
 def sync_batch(machine_id, session_id, snapshots):
     """Send a batch of snapshots to the server."""
     try:

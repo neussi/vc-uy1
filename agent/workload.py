@@ -5,7 +5,7 @@ import random
 
 logger = logging.getLogger("VC-Workload")
 
-def run_synthetic_workload(duration_s=30, intensity=0.5):
+def run_synthetic_workload(duration_s=30, intensity=0.5, task_id=None):
     """Simulate a computational task and return its execution footprint."""
     import datetime
     import psutil
@@ -30,7 +30,19 @@ def run_synthetic_workload(duration_s=30, intensity=0.5):
     _dummy_data = bytearray(int(100 * 1024 * 1024 * intensity)) # ~100MB * intensity
     
     # Track network during task if needed, but here we just wait
-    time.sleep(duration_s)
+    # Split sleep to report progress if callback is provided
+    import syncer
+    step = max(1, int(duration_s / 20)) # Report every 5%
+    elapsed = 0
+    while elapsed < duration_s:
+        chunk = min(step, duration_s - elapsed)
+        time.sleep(chunk)
+        elapsed += chunk
+        progress = round((elapsed / duration_s) * 100, 1)
+        # Call syncer directly (passing task_id is tricky if we don't have it, 
+        # so let's ensure run_synthetic_workload takes task_id as arg)
+        if task_id:
+            syncer.update_task_progress(task_id, progress)
     
     for p in processes:
         if p.is_alive():

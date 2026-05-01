@@ -166,7 +166,9 @@ def main():
                             intensity = random.choice([0.3, 0.5])
                             # RESEARCH UPDATE: Duration now ranges from 1 hour to 2 hours
                             duration = random.randint(3600, 7200)
-                            result = workload.run_synthetic_workload(duration_s=duration, intensity=intensity)
+                            
+                            syncer.notify_task_start(task_id, machine_id, session_id, duration)
+                            result = workload.run_synthetic_workload(duration_s=duration, intensity=intensity, task_id=task_id)
                             
                             # Attach identification
                             result.update({

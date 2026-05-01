@@ -244,11 +244,68 @@ def sync_task_results(task: dict = Body(...), db: Session = Depends(get_db)):
             network_io_mb=task.get('network_io_mb', 0)
         )
         db.add(db_task)
+        # Remove from active tasks if it was there
+        db.query(models.ActiveTask).filter(models.ActiveTask.task_id == task['task_id']).delete()
         db.commit()
         return {"status": "ok"}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/tasks/start")
+def start_active_task(task: dict = Body(...), db: Session = Depends(get_db)):
+    try:
+        db_task = models.ActiveTask(
+            task_id=task['task_id'],
+            machine_id=task['machine_id'],
+            session_id=task['session_id'],
+            target_duration_s=task['target_duration_s']
+        )
+        db.add(db_task)
+        db.commit()
+        return {"status": "ok"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.patch("/tasks/update")
+def update_task_progress(task_id: str = Body(...), progress: float = Body(...), db: Session = Depends(get_db)):
+    db_task = db.query(models.ActiveTask).filter(models.ActiveTask.task_id == task_id).first()
+    if db_task:
+        db_task.progress_percent = progress
+        db.commit()
+        return {"status": "ok"}
+    raise HTTPException(status_code=404, detail="Task not found")
+
+@app.get("/tasks/active")
+def get_active_tasks(db: Session = Depends(get_db)):
+    tasks = db.query(models.ActiveTask).all()
+    return [{
+        "task_id": t.task_id,
+        "machine_id": t.machine_id,
+        "progress": t.progress_percent,
+        "start_time": t.start_time.isoformat(),
+        "target": t.target_duration_s
+    } for t in tasks]
+
+@app.get("/machines/list")
+def list_machines_with_stats(db: Session = Depends(get_db)):
+    # Join machines with snapshot counts and task counts
+    machines = db.query(models.Machine).all()
+    results = []
+    for m in machines:
+        snap_count = db.query(models.Snapshot).filter(models.Snapshot.machine_id == m.machine_id).count()
+        task_count = db.query(models.TaskResult).filter(models.TaskResult.machine_id == m.machine_id).count()
+        results.append({
+            "machine_id": m.machine_id,
+            "os": m.os,
+            "last_seen": m.last_seen.isoformat() if m.last_seen else None,
+            "snapshots": snap_count,
+            "tasks": task_count,
+            "cores": m.cpu_cores,
+            "ram": m.ram_total_mb
+        })
+    return results
 @app.get("/stats/detailed")
 def get_detailed_stats(db: Session = Depends(get_db)):
     # OS Distribution
