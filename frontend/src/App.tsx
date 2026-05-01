@@ -207,75 +207,8 @@ function AboutPage() {
   );
 }
 
-function VolunteersPage() {
-  return (
-    <motion.section className="page-content" variants={pageVariants} initial="initial" animate="animate" exit="exit" style={{ padding: '0 60px' }}>
-      <h2 className="section-title">Join the <span className="neon-text">Movement</span></h2>
-      <p style={{ marginBottom: 30, color: '#aaa', fontSize: 18, maxWidth: 800 }}>Help our academic research by donating small amounts of your computer's spare time. Follow these secure, step-by-step guides to join the grid.</p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-
-        {/* WINDOWS GUIDE */}
-        <div className="guide-card card-glass responsive-flex" style={{ display: 'flex', gap: 40 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: 20 }}>
-              <span style={{ fontSize: 40 }}>🪟</span>
-              <h3>Windows Deployment <span className="neon-text">(Recommended)</span></h3>
-            </div>
-
-            <div className="card-glass" style={{ padding: '15px 20px', marginBottom: 20, borderColor: 'rgba(255, 189, 46, 0.3)', background: 'rgba(255, 189, 46, 0.05)' }}>
-              <p style={{ fontSize: 13, color: '#ffbd2e', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <ShieldAlert size={16} />
-                <span>Note : Logiciel de recherche certifié par l'UY1, mais non signé numériquement. Un avertissement Windows apparaîtra au premier lancement.</span>
-              </p>
-            </div>
-
-            <div className="step-list">
-              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 1:</strong> Téléchargez l'exécutable natif compilé. Aucune installation requise, c'est un fichier standalone.</span></div>
-              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 2:</strong> Double-cliquez pour l'exécuter. Il tournera discrètement en arrière-plan sans ralentir votre PC.</span></div>
-              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 3:</strong> La télémétrie locale commence. Le client gère automatiquement les coupures de courant.</span></div>
-            </div>
-
-            <a href="/vc-agent-windows.exe" download className="btn-wow" style={{ marginTop: 30, width: '100%', display: 'inline-block', textAlign: 'center' }}>Download vc-agent-windows.exe</a>
-            <Link to="/install/windows" className="btn-outline" style={{ marginTop: 15, width: '100%', display: 'inline-block', textAlign: 'center' }}>View Visual Setup Guide</Link>
-          </div>
-
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="/windows_diag.svg" alt="Windows Setup Diagram" style={{ width: '100%', borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }} />
-          </div>
-        </div>
-
-        {/* LINUX GUIDE */}
-        <div className="guide-card card-glass responsive-flex" style={{ display: 'flex', gap: 40, borderColor: '#333' }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: 20 }}>
-              <span style={{ fontSize: 40 }}>🐧</span>
-              <h3>Linux Terminal / Server</h3>
-            </div>
-
-            <div className="step-list">
-              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 1:</strong> Download the pre-compiled binary via CLI on your Ubuntu/Debian lab node.</span></div>
-              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 2:</strong> Accordez les droits d'exécution avec <code>chmod +x</code>.</span></div>
-              <div className="step"><CheckCircle2 className="neon-text" size={20} /> <span><strong>Étape 3:</strong> Démarrez l'agent. Idéal pour les configurations de graphes distribués dans les Amphithéâtres.</span></div>
-            </div>
-
-            <div className="code-block" style={{ marginTop: 20, background: '#000', padding: 20, borderRadius: 12, fontSize: 13, border: '1px solid #333', fontFamily: 'monospace' }}>
-              <span style={{ color: 'var(--accent-neon)' }}>$</span> wget http://vc-uy1.npe-techs.com/vc-agent-linux<br />
-              <span style={{ color: 'var(--accent-neon)' }}>$</span> chmod +x vc-agent-linux<br />
-              <span style={{ color: 'var(--accent-neon)' }}>$</span> ./vc-agent-linux
-            </div>
-            <a href="/vc-agent-linux" download className="btn-outline" style={{ marginTop: 15, display: 'inline-block', width: '100%', textAlign: 'center' }}>Download Binary directly</a>
-          </div>
-
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="/linux_diag.svg" alt="Linux Setup Diagram" style={{ width: '100%', borderRadius: 12, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }} />
-          </div>
-        </div>
-
-      </div>
-    </motion.section>
-  );
-}
+// VolunteersPage is now replaced by InstallationPage for consistency
+const VolunteersPage = InstallationPage;
 
 import DashboardPage from './pages/Dashboard';
 import InstallationPage from './pages/Installation';

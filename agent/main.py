@@ -163,8 +163,10 @@ def main():
                             is_workload_running = True
                             task_id = str(uuid.uuid4())
                             # Intensity varied for statistical range
-                            intensity = random.choice([0.3, 0.5, 0.7])
-                            result = workload.run_synthetic_workload(duration_s=20, intensity=intensity)
+                            intensity = random.choice([0.3, 0.5])
+                            # RESEARCH UPDATE: Duration now ranges from 5 minutes to 2 hours
+                            duration = random.randint(300, 7200)
+                            result = workload.run_synthetic_workload(duration_s=duration, intensity=intensity)
                             
                             # Attach identification
                             result.update({

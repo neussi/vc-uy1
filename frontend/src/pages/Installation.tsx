@@ -38,13 +38,13 @@ const windowsSteps: Step[] = [
         ]
     },
     {
-        title: "Installation Silencieuse",
+        title: "Installation Automatisée",
         icon: <Terminal className="neon-text" size={32} />,
-        desc: "Exécutez le fichier téléchargé pour activer votre nœud dans le cluster.",
+        desc: "Les commandes PowerShell configurent tout pour vous, incluant le service de persistance.",
         details: [
-            "Clic-droit sur 'vc-agent-windows.exe'.",
-            "Sélectionnez 'Exécuter en tant qu'administrateur'.",
-            "Indispensable pour l'installation du Service de Persistance."
+            "Copiez les commandes de l'étape précédente (Bouton 'Tout Copier').",
+            "Collez dans un terminal PowerShell ouvert en mode Administrateur.",
+            "Le script téléchargera les modules de recherche et activera le service."
         ]
     },
     {
