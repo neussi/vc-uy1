@@ -38,12 +38,12 @@ export default function DashboardPage() {
                 const data = await resTasks.json();
                 setRecentTasks(data);
             }
-            const resActive = await fetch('/tasks/active');
+            const resActive = await fetch('/stats/tasks/active');
             if (resActive.ok) {
                 const data = await resActive.json();
                 setActiveTasks(data);
             }
-            const resMachines = await fetch('/nodes/list');
+            const resMachines = await fetch('/stats/nodes');
             if (resMachines.ok) {
                 const data = await resMachines.json();
                 setMachineList(data);

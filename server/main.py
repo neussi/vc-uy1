@@ -277,7 +277,7 @@ def update_task_progress(task_id: str = Body(...), progress: float = Body(...), 
         return {"status": "ok"}
     raise HTTPException(status_code=404, detail="Task not found")
 
-@app.get("/tasks/active")
+@app.get("/stats/tasks/active")
 def get_active_tasks(db: Session = Depends(get_db)):
     tasks = db.query(models.ActiveTask).all()
     return [{
@@ -288,7 +288,7 @@ def get_active_tasks(db: Session = Depends(get_db)):
         "target": t.target_duration_s
     } for t in tasks]
 
-@app.get("/nodes/list")
+@app.get("/stats/nodes")
 def list_machines_with_stats(db: Session = Depends(get_db)):
     # Join machines with snapshot counts and task counts
     machines = db.query(models.Machine).all()
