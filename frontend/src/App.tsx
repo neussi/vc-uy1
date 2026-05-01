@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, CheckCircle2, ShieldAlert, Mail } from 'lucide-react';
+import { Activity, Shield, Download, Info, Book, LogIn, Server, Zap, ArrowRight, User, Globe, Lock, Mail } from 'lucide-react';
 import './App.css';
 
 // --- ANIMATION VARIANTS ---
