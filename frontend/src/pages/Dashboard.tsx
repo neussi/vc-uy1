@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, Database, Activity, HardDrive, Wifi, CheckCircle2, Clock } from 'lucide-react';
+import { Download, Database, Activity, HardDrive, Wifi, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const COLORS = ['#d4ff00', '#00f2ff', '#ff00f2', '#8884d8'];
