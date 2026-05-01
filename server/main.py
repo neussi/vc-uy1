@@ -288,7 +288,7 @@ def get_active_tasks(db: Session = Depends(get_db)):
         "target": t.target_duration_s
     } for t in tasks]
 
-@app.get("/machines/list")
+@app.get("/nodes/list")
 def list_machines_with_stats(db: Session = Depends(get_db)):
     # Join machines with snapshot counts and task counts
     machines = db.query(models.Machine).all()
