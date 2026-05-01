@@ -181,8 +181,17 @@
   td:nth-of-type(5):before {
     content: "Power State";
   }
+}
 
-  /* Installation Grid Responsiveness */
+/* --- INSTALLATION PAGE RESPONSIVENESS --- */
+.installation-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  min-height: 500px;
+}
+
+@media (max-width: 900px) {
   .installation-grid {
     grid-template-columns: 1fr !important;
     gap: 20px !important;
@@ -196,12 +205,14 @@
     padding: 10px !important;
     border-bottom: 1px solid #333;
     margin-bottom: 10px;
+    background: rgba(0,0,0,0.2);
   }
 
   .installation-grid > div:first-child > div {
     white-space: nowrap;
     flex-shrink: 0;
     padding: 10px 15px !important;
+    font-size: 14px;
   }
 }
 

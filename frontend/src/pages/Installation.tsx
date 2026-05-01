@@ -149,7 +149,7 @@ export default function InstallationPage() {
                 </div>
             </div>
 
-            <div className="installation-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 40, minHeight: 500 }}>
+            <div className="installation-grid">
                 {/* Steps Sidebar */}
                 <div className="card-glass" style={{ padding: 20 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
