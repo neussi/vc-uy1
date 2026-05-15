@@ -53,14 +53,18 @@ jobs:
           target: "/var/www/vc-uy1/frontend"
           strip_components: 1
 
-      - name: Finalize
+      - name: Finalize & Migrate
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
+            cd /var/www/vc-uy1
+            # Run database migration to ensure 18-dimension schema is active
+            python3 server/migrate_db.py
+            
             # Run the detached redeploy script
             nohup bash /var/www/vc-uy1/redeploy.sh > /dev/null 2>&1 &
             sleep 2
-            echo "Deployment triggered."
+            echo "Deployment and Migration triggered."
