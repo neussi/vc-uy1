@@ -74,6 +74,7 @@ class Snapshot(Base):
     synthetic_task_active = Column(Boolean, default=False)
     synced = Column(Boolean, default=False)
     is_anonymized = Column(Boolean, default=False)
+    features_json = Column(Text) # The 18-dimension feature vector as a JSON string
 
     session = relationship("Session", back_populates="snapshots")
     machine = relationship("Machine", back_populates="snapshots")
@@ -93,35 +94,6 @@ class PowerEvent(Base):
     ram_before = Column(Float)
 
     machine = relationship("Machine", back_populates="power_events")
-
-class TaskResult(Base):
-    __tablename__ = 'task_results'
-    task_id = Column(String, primary_key=True) # UUID v4
-    machine_id = Column(String, ForeignKey('machines.machine_id'), nullable=False)
-    session_id = Column(String, ForeignKey('sessions.session_id'), nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime)
-    target_duration_s = Column(Integer)
-    actual_duration_s = Column(Integer)
-    interrupted = Column(Boolean, default=False)
-    avg_cpu_load = Column(Float)
-    avg_ram_load = Column(Float)
-    network_io_mb = Column(Float)
-
-    machine = relationship("Machine")
-    session = relationship("Session")
-
-class ActiveTask(Base):
-    __tablename__ = 'active_tasks'
-    task_id = Column(String, primary_key=True)
-    machine_id = Column(String, ForeignKey('machines.machine_id'), nullable=False)
-    session_id = Column(String, ForeignKey('sessions.session_id'), nullable=False)
-    start_time = Column(DateTime, default=datetime.datetime.utcnow)
-    target_duration_s = Column(Integer, nullable=False)
-    progress_percent = Column(Float, default=0.0)
-    last_update = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
-
-    machine = relationship("Machine")
 
 class SyncLog(Base):
     __tablename__ = 'sync_log'

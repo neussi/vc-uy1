@@ -96,12 +96,23 @@ def start_session(session: dict, db: Session = Depends(get_db)):
 @app.post("/sync/snapshots")
 def sync_snapshots(machine_id: str = Body(...), snapshots: List[dict] = Body(...), db: Session = Depends(get_db)):
     try:
+        import json
         db_snapshots = []
         for s in snapshots:
+            # Handle the 18-dimension feature vector
+            features = s.pop('features', None)
+            if features:
+                s['features_json'] = json.dumps(features)
+            
             # Parse dates
             if 'ts_utc' in s: s['ts_utc'] = datetime.datetime.fromisoformat(s['ts_utc'].replace('Z', ''))
             if 'ts_local' in s: s['ts_local'] = datetime.datetime.fromisoformat(s['ts_local'].replace('Z', ''))
-            db_snapshots.append(models.Snapshot(machine_id=machine_id, **s))
+            
+            # Filter keys to match model
+            valid_keys = models.Snapshot.__table__.columns.keys()
+            filtered_s = {k: v for k, v in s.items() if k in valid_keys}
+            
+            db_snapshots.append(models.Snapshot(machine_id=machine_id, **filtered_s))
             
         db.add_all(db_snapshots)
         db.commit()
@@ -139,23 +150,6 @@ def get_live_data_feed(db: Session = Depends(get_db)):
         "disk_read": s.disk_read_mbps,
         "disk_write": s.disk_write_mbps
     } for s in snapshots]
-
-@app.get("/tasks/recent")
-def get_recent_tasks(db: Session = Depends(get_db)):
-    tasks = db.query(models.TaskResult).order_by(models.TaskResult.end_time.desc()).limit(10).all()
-    return [{
-        "task_id": t.task_id,
-        "machine_id": t.machine_id,
-        "session_id": t.session_id,
-        "start_time": t.start_time.isoformat() if t.start_time else None,
-        "end_time": t.end_time.isoformat() if t.end_time else None,
-        "target_duration_s": t.target_duration_s,
-        "actual_duration_s": t.actual_duration_s,
-        "interrupted": t.interrupted,
-        "avg_cpu_load": t.avg_cpu_load,
-        "avg_ram_load": t.avg_ram_load,
-        "network_io_mb": t.network_io_mb
-    } for t in tasks]
 
 @app.post("/sync/power-events")
 def sync_power_events(event: dict = Body(...), db: Session = Depends(get_db)):
@@ -224,70 +218,6 @@ async def handle_contact(data: ContactForm):
     else:
         raise HTTPException(status_code=500, detail="Erreur lors de l'envoi de l'email")
 
-@app.post("/sync/tasks")
-def sync_task_results(task: dict = Body(...), db: Session = Depends(get_db)):
-    try:
-        start_ts = datetime.datetime.fromisoformat(task['start_time'].replace('Z', ''))
-        end_ts = datetime.datetime.fromisoformat(task['end_time'].replace('Z', '')) if task.get('end_time') else None
-        
-        db_task = models.TaskResult(
-            task_id=task['task_id'],
-            machine_id=task['machine_id'],
-            session_id=task['session_id'],
-            start_time=start_ts,
-            end_time=end_ts,
-            target_duration_s=task['target_duration_s'],
-            actual_duration_s=task['actual_duration_s'],
-            interrupted=task['interrupted'],
-            avg_cpu_load=task['avg_cpu_load'],
-            avg_ram_load=task['avg_ram_load'],
-            network_io_mb=task.get('network_io_mb', 0)
-        )
-        db.add(db_task)
-        # Remove from active tasks if it was there
-        db.query(models.ActiveTask).filter(models.ActiveTask.task_id == task['task_id']).delete()
-        db.commit()
-        return {"status": "ok"}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/tasks/start")
-def start_active_task(task: dict = Body(...), db: Session = Depends(get_db)):
-    try:
-        db_task = models.ActiveTask(
-            task_id=task['task_id'],
-            machine_id=task['machine_id'],
-            session_id=task['session_id'],
-            target_duration_s=task['target_duration_s']
-        )
-        db.add(db_task)
-        db.commit()
-        return {"status": "ok"}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.patch("/tasks/update")
-def update_task_progress(task_id: str = Body(...), progress: float = Body(...), db: Session = Depends(get_db)):
-    db_task = db.query(models.ActiveTask).filter(models.ActiveTask.task_id == task_id).first()
-    if db_task:
-        db_task.progress_percent = progress
-        db.commit()
-        return {"status": "ok"}
-    raise HTTPException(status_code=404, detail="Task not found")
-
-@app.get("/stats/tasks/active")
-def get_active_tasks(db: Session = Depends(get_db)):
-    tasks = db.query(models.ActiveTask).all()
-    return [{
-        "task_id": t.task_id,
-        "machine_id": t.machine_id,
-        "progress": t.progress_percent,
-        "start_time": t.start_time.isoformat(),
-        "target": t.target_duration_s
-    } for t in tasks]
-
 @app.get("/stats/nodes")
 def list_machines_with_stats(db: Session = Depends(get_db)):
     # Join machines with snapshot counts and task counts
@@ -295,13 +225,11 @@ def list_machines_with_stats(db: Session = Depends(get_db)):
     results = []
     for m in machines:
         snap_count = db.query(models.Snapshot).filter(models.Snapshot.machine_id == m.machine_id).count()
-        task_count = db.query(models.TaskResult).filter(models.TaskResult.machine_id == m.machine_id).count()
         results.append({
             "machine_id": m.machine_id,
             "os": m.os,
             "last_seen": m.last_seen.isoformat() if m.last_seen else None,
             "snapshots": snap_count,
-            "tasks": task_count,
             "cores": m.cpu_cores,
             "ram": m.ram_total_mb
         })

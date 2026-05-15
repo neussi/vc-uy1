@@ -1,7 +1,7 @@
 import time
 import sys
 import uuid
-import heartbeat, collector, syncer, persistence, workload
+import heartbeat, collector, syncer, persistence
 import logging
 import os
 import json
@@ -132,14 +132,14 @@ def main():
     syncer.sync_batch(machine_id, session_id, [initial_stats])
     
     # 5. Main collection loop (Privacy-Aware)
-    is_workload_running = False
+    # 5. Main collection loop (Privacy-Aware)
     last_power_status = None
     try:
         while True:
             # Phase 1: Local Aggregation (Micro-cycles of 60s)
-            # We collect 5 mini-samples before sending the 5-min snapshot (GLOBECOM 2023)
+            # We collect 5 mini-samples before sending the snapshot
             for _ in range(5):
-                stats = collector.get_stats(is_task_active=is_workload_running, aggregate=True)
+                stats = collector.get_stats(aggregate=True)
                 
                 # Detect transition (Instant response)
                 current_power_status = stats['power_plugged']
@@ -149,51 +149,19 @@ def main():
                     syncer.report_power_event(machine_id, event_type, 0)
                 last_power_status = current_power_status
 
-                # Heartbeat and Workload logic check
+                # Heartbeat logic check
                 heartbeat.write_heartbeat()
                 
-                # --- Workload Trigger (Research Node Intelligence) ---
-                # ULTRA-LOW threshold for developer validation (30s instead of 300s)
-                if not is_workload_running and collector.get_idle_time() >= 30:
-                    # High probability for instant WOW effect
-                    if random.random() < 0.8:
-                        import threading
-                        def run_and_track():
-                            nonlocal is_workload_running
-                            is_workload_running = True
-                            task_id = str(uuid.uuid4())
-                            # Intensity varied for statistical range
-                            intensity = random.choice([0.3, 0.5])
-                            # RESEARCH UPDATE: Duration now ranges from 1 hour to 2 hours
-                            duration = random.randint(3600, 7200)
-                            
-                            syncer.notify_task_start(task_id, machine_id, session_id, duration)
-                            result = workload.run_synthetic_workload(duration_s=duration, intensity=intensity, task_id=task_id)
-                            
-                            # Attach identification
-                            result.update({
-                                "task_id": task_id,
-                                "machine_id": machine_id,
-                                "session_id": session_id
-                            })
-                            
-                            # Log and sync task result
-                            logger.info(f"Submitting RESEARCH TASK results: {task_id}")
-                            syncer.report_task_result(result)
-                            is_workload_running = False
-                            
-                        threading.Thread(target=run_and_track, daemon=True).start()
-
                 # Faster sampling for the demo (15s instead of 60s)
                 time.sleep(15) 
 
             # Phase 2: Transmission (Aggregated data)
             if syncer.check_connectivity():
                 # Get the aggregated stats (averages)
-                final_stats = collector.get_stats(is_task_active=is_workload_running, aggregate=True)
+                final_stats = collector.get_stats(aggregate=True)
                 syncer.sync_batch(machine_id, session_id, [final_stats])
                 collector.clear_aggregation_buffers()
-                logger.info("Aggregated snapshot synchronized (Privacy-Mode).")
+                logger.info("Aggregated snapshot synchronized.")
     except KeyboardInterrupt:
         logger.info("Shutting down cleanly...")
         heartbeat.write_heartbeat(shutdown_clean=True)

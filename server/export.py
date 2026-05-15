@@ -24,8 +24,7 @@ def export_dataset_to_zip(db: Session, format: str):
                 "machines": db.query(models.Machine).all(),
                 "sessions": db.query(models.Session).all(),
                 "snapshots": db.query(models.Snapshot).all(),
-                "power_events": db.query(models.PowerEvent).all(),
-                "task_results": db.query(models.TaskResult).all()
+                "power_events": db.query(models.PowerEvent).all()
             }
             
             for name, data in tables.items():

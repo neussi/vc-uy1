@@ -1,0 +1,5 @@
+{
+    "allowed_days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+    "allowed_slots": ["00:00-23:59"],
+    "machine_type": "desktop"
+}
