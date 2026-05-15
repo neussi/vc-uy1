@@ -128,7 +128,7 @@ def main():
     
     # NEW: Immediate Startup Pulse (for instant visibility)
     logger.info("Sending initial startup pulse...")
-    initial_stats = collector.get_stats(is_task_active=False, aggregate=False)
+    initial_stats = collector.get_stats(aggregate=False)
     syncer.sync_batch(machine_id, session_id, [initial_stats])
     
     # 5. Main collection loop (Privacy-Aware)
