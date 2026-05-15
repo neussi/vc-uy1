@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, Database, Activity, HardDrive, Wifi, CheckCircle2 } from 'lucide-react';
+import { Download, Database, Activity, HardDrive, Wifi } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const COLORS = ['#d4ff00', '#00f2ff', '#ff00f2', '#8884d8'];
@@ -8,8 +8,6 @@ const COLORS = ['#d4ff00', '#00f2ff', '#ff00f2', '#8884d8'];
 export default function DashboardPage() {
     const [chartData, setChartData] = useState<any[]>([]);
     const [detailedStats, setDetailedStats] = useState<any>({ os_distribution: [], total_machines: 0, total_snapshots: 0, availability_avg: 99.8 });
-    const [recentTasks, setRecentTasks] = useState<any[]>([]);
-    const [activeTasks, setActiveTasks] = useState<any[]>([]);
     const [machineList, setMachineList] = useState<any[]>([]);
     const [exportFormat, setExportFormat] = useState("csv");
 
