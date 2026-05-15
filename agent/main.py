@@ -59,14 +59,36 @@ def get_consent():
     print("4. Feedback : Enquêtes d'expérience utilisateur")
     print("="*60)
     
-    # In interactive mode, we could ask, but for large scale we default to 3
-    # or look for an environment variable / cli arg.
     level = 3 
     print(f"-> Niveau sélectionné par défaut pour la recherche : {level}")
     
     with open(consent_file, "w") as f:
         json.dump({"consent_level": level, "accepted_at": time.time()}, f)
     return level
+
+def set_preferences():
+    """Prompt for user availability preferences."""
+    pref_file = "preferences.json"
+    if os.path.exists(pref_file):
+        return
+
+    print("\n" + "="*60)
+    print("   CONFIGURATIONS DE DISPONIBILITÉ (Recherche)")
+    print("="*60)
+    print("Souhaitez-vous limiter la collecte à certaines heures ?")
+    print("Par défaut : 24h/24 (Optimal pour la précision du modèle)")
+    print("Appuyez sur Entrée pour accepter, ou configurez plus tard dans preferences.json")
+    print("="*60)
+    
+    # Default preferences
+    prefs = {
+        "allowed_days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+        "allowed_slots": ["00:00-23:59"]
+    }
+    
+    with open(pref_file, "w") as f:
+        json.dump(prefs, f, indent=4)
+    print("-> Préférences enregistrées (24h/7j).")
 
 def daemonize():
     """Fork the process into the background (Linux/Posix only)."""
@@ -104,25 +126,28 @@ def main():
     # 0. Show welcome message
     print_welcome_message()
     
-    # 1. Backgrounding
+    # 1. Interactive setup before backgrounding
+    consent_level = get_consent()
+    set_preferences()
+    
+    # 2. Backgrounding
     if "--foreground" not in sys.argv:
         daemonize()
 
     logger.info("Starting VC-Agent Daemon...")
     
-    # 2. Ensure persistence (Auto-start)
+    # 3. Ensure persistence (Auto-start)
     persistence.ensure_persistence()
     
-    # 3. Startup check for power cut
+    # 4. Startup check for power cut
     machine_id = collector.get_mac_address()
     status = heartbeat.detect_power_cut()
     if status and status['type'] == 'power_cut':
         logger.warning(f"Power cut detected! Downtime: {status['gap_s']}s")
         syncer.report_power_event(machine_id, "power_cut", status['gap_s'])
     
-    # 4. Register and verify consent
+    # 5. Register and verify consent
     session_id = str(uuid.uuid4())
-    consent_level = get_consent()
     syncer.register(machine_id, consent_level=consent_level)
     syncer.start_session(machine_id, session_id)
     
