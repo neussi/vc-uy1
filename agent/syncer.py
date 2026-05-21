@@ -29,6 +29,26 @@ def get_verify_path():
         return os.path.join(sys._MEIPASS, 'certifi', 'cacert.pem')
     return certifi.where()
 
+def get_cpu_model():
+    """Retrieve clean, human-readable CPU model string."""
+    if platform.system().lower() == "windows":
+        try:
+            import winreg
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+            val, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+            return val.strip()
+        except:
+            return platform.processor() or "Unknown CPU"
+    else:
+        try:
+            with open("/proc/cpuinfo", "r") as f:
+                for line in f:
+                    if "model name" in line:
+                        return line.split(":", 1)[1].strip()
+        except:
+            pass
+    return platform.processor() or "Unknown CPU"
+
 def register(machine_id, consent_level=3):
     """Register machine with specific research consent level and volunteer preferences."""
     url = f"{SERVER_URL}/register"
@@ -48,6 +68,11 @@ def register(machine_id, consent_level=3):
         except Exception as e:
             logger.error(f"Error reading preferences for registration: {e}")
 
+    try:
+        disk_total = round(psutil.disk_usage('/').total / (1024**3), 1)
+    except:
+        disk_total = 0.0
+
     data = {
         "machine_id": machine_id,
         "hostname": socket.gethostname(),
@@ -59,7 +84,10 @@ def register(machine_id, consent_level=3):
         "consent_level": consent_level,
         "allowed_days": allowed_days,
         "allowed_slots": allowed_slots,
-        "contrib_mode": contrib_mode
+        "contrib_mode": contrib_mode,
+        "cpu_model": get_cpu_model(),
+        "cpu_cores_physical": psutil.cpu_count(logical=False) or psutil.cpu_count() or 1,
+        "disk_total_gb": disk_total
     }
     try:
         requests.post(url, json=data, verify=get_verify_path(), timeout=10)

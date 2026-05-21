@@ -20,6 +20,9 @@ class Machine(Base):
     allowed_days = Column(String)
     allowed_slots = Column(String)
     contrib_mode = Column(String, default="total")
+    cpu_model = Column(String)
+    cpu_cores_physical = Column(Integer)
+    disk_total_gb = Column(Float)
 
     sessions = relationship("Session", back_populates="machine")
     snapshots = relationship("Snapshot", back_populates="machine")
@@ -55,8 +58,21 @@ class Snapshot(Base):
     cpu_freq_mhz = Column(Float)
     ram_available_mb = Column(Integer)
     ram_percent_used = Column(Float)
+    ram_used_mb = Column(Integer)
+    swap_percent = Column(Float)
+    swap_total_mb = Column(Integer)
+    swap_used_mb = Column(Integer)
+    disk_percent_used = Column(Float)
+    disk_used_gb = Column(Float)
+    disk_free_gb = Column(Float)
     disk_read_mbps = Column(Float)
     disk_write_mbps = Column(Float)
+    
+    # CPU Load & Processes
+    load_avg_1m = Column(Float)
+    load_avg_5m = Column(Float)
+    load_avg_15m = Column(Float)
+    process_count = Column(Integer)
     
     # Power
     battery_percent = Column(Float)

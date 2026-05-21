@@ -129,7 +129,44 @@ def get_stats(aggregate=True):
     # 1. Base Metrics
     cpu_percent = psutil.cpu_percent(interval=1)
     ram = psutil.virtual_memory()
-    ram_free_mb = ram.available / (1024 * 1024)
+    ram_available_mb = int(ram.available / (1024 * 1024))
+    ram_used_mb = int((ram.total - ram.available) / (1024 * 1024))
+    
+    # Swap Metrics
+    try:
+        swap = psutil.swap_memory()
+        swap_percent = swap.percent
+        swap_total_mb = int(swap.total / (1024 * 1024))
+        swap_used_mb = int(swap.used / (1024 * 1024))
+    except:
+        swap_percent = 0.0
+        swap_total_mb = 0
+        swap_used_mb = 0
+
+    # Storage Metrics
+    try:
+        disk = psutil.disk_usage('/')
+        disk_percent_used = disk.percent
+        disk_used_gb = round(disk.used / (1024**3), 2)
+        disk_free_gb = round(disk.free / (1024**3), 2)
+    except:
+        disk_percent_used = 0.0
+        disk_used_gb = 0.0
+        disk_free_gb = 0.0
+
+    # CPU Load & Processes
+    try:
+        if os.name == 'posix':
+            load1, load5, load15 = os.getloadavg()
+        else:
+            load1 = load5 = load15 = cpu_percent / 100.0
+    except:
+        load1 = load5 = load15 = 0.0
+
+    try:
+        process_count = len(psutil.pids())
+    except:
+        process_count = 0
     
     # Update history
     engine.cpu_history.append(cpu_percent)
@@ -167,14 +204,26 @@ def get_stats(aggregate=True):
         "features": [
             s_hour, c_hour, s_dow, c_dow, s_dom, c_dom, s_mon, c_mon, # 1-8
             avg1, avg6, avg24, std1,                                 # 9-12
-            cpu_free, ram_free_mb, is_conn,                          # 13-15
+            cpu_free, float(ram_available_mb), is_conn,              # 13-15
             log_h, outage_active,                                    # 16-17
             compat_score                                             # 18
         ],
         
-        # --- RAW METRICS FOR DASHBOARD ---
+        # --- RAW METRICS FOR DATABASE & DASHBOARD ---
         "cpu_percent": cpu_percent,
+        "ram_available_mb": ram_available_mb,
         "ram_percent_used": ram.percent,
+        "ram_used_mb": ram_used_mb,
+        "swap_percent": swap_percent,
+        "swap_total_mb": swap_total_mb,
+        "swap_used_mb": swap_used_mb,
+        "disk_percent_used": disk_percent_used,
+        "disk_used_gb": disk_used_gb,
+        "disk_free_gb": disk_free_gb,
+        "load_avg_1m": load1,
+        "load_avg_5m": load5,
+        "load_avg_15m": load15,
+        "process_count": process_count,
         "is_connected": is_conn == 1,
         "power_plugged": outage_active == 0,
         "idle_seconds": get_idle_time()

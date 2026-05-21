@@ -38,6 +38,45 @@ else:
                 print("INFO: Les colonnes de préférences existent déjà.")
             else:
                 raise e
+
+        # Add new static machines columns
+        try:
+            cursor.execute("ALTER TABLE machines ADD COLUMN cpu_model TEXT")
+            cursor.execute("ALTER TABLE machines ADD COLUMN cpu_cores_physical INTEGER")
+            cursor.execute("ALTER TABLE machines ADD COLUMN disk_total_gb REAL")
+            conn.commit()
+            print("SUCCESS: Les colonnes statiques additionnelles ont été ajoutées à la table 'machines'.")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" in str(e):
+                print("INFO: Les colonnes statiques de la table 'machines' existent déjà.")
+            else:
+                raise e
+
+        # Add new dynamic snapshots columns
+        new_snap_cols = [
+            ("swap_percent", "REAL"),
+            ("swap_total_mb", "INTEGER"),
+            ("swap_used_mb", "INTEGER"),
+            ("ram_used_mb", "INTEGER"),
+            ("disk_percent_used", "REAL"),
+            ("disk_used_gb", "REAL"),
+            ("disk_free_gb", "REAL"),
+            ("load_avg_1m", "REAL"),
+            ("load_avg_5m", "REAL"),
+            ("load_avg_15m", "REAL"),
+            ("process_count", "INTEGER")
+        ]
+        
+        for col_name, col_type in new_snap_cols:
+            try:
+                cursor.execute(f"ALTER TABLE snapshots ADD COLUMN {col_name} {col_type}")
+                conn.commit()
+                print(f"SUCCESS: La colonne dynamique '{col_name}' a été ajoutée.")
+            except sqlite3.OperationalError as e:
+                if "duplicate column name" in str(e):
+                    print(f"INFO: La colonne dynamique '{col_name}' existe déjà.")
+                else:
+                    raise e
         
         # Also clean up old task tables if they still exist
         cursor.execute("DROP TABLE IF EXISTS task_results")

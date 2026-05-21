@@ -76,7 +76,10 @@ def register_machine(machine: dict, db: Session = Depends(get_db)):
         "consent_level": machine.get('consent_level', 1),
         "allowed_days": ",".join(machine.get('allowed_days')) if isinstance(machine.get('allowed_days'), list) else machine.get('allowed_days'),
         "allowed_slots": ",".join(machine.get('allowed_slots')) if isinstance(machine.get('allowed_slots'), list) else machine.get('allowed_slots'),
-        "contrib_mode": machine.get('contrib_mode') or machine.get('mode', 'total')
+        "contrib_mode": machine.get('contrib_mode') or machine.get('mode', 'total'),
+        "cpu_model": machine.get('cpu_model', 'unknown'),
+        "cpu_cores_physical": machine.get('cpu_cores_physical', 0),
+        "disk_total_gb": machine.get('disk_total_gb', 0.0)
     }
     
     new_machine = models.Machine(**model_data)
