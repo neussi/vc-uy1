@@ -73,7 +73,10 @@ def register_machine(machine: dict, db: Session = Depends(get_db)):
         "ram_total_mb": int(machine.get('ram_total_mb') or (machine.get('ram_gb', 0) * 1024)),
         "timezone": machine.get('timezone', 'UTC'),
         "city": machine.get('city', 'Unknown'),
-        "consent_level": machine.get('consent_level', 1)
+        "consent_level": machine.get('consent_level', 1),
+        "allowed_days": ",".join(machine.get('allowed_days')) if isinstance(machine.get('allowed_days'), list) else machine.get('allowed_days'),
+        "allowed_slots": ",".join(machine.get('allowed_slots')) if isinstance(machine.get('allowed_slots'), list) else machine.get('allowed_slots'),
+        "contrib_mode": machine.get('contrib_mode') or machine.get('mode', 'total')
     }
     
     new_machine = models.Machine(**model_data)

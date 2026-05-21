@@ -17,6 +17,9 @@ class Machine(Base):
     registered_at = Column(DateTime, default=datetime.datetime.utcnow)
     last_seen = Column(DateTime)
     consent_level = Column(Integer, default=1) # 1: Essential, 2: System, 3: Research, 4: Feedback
+    allowed_days = Column(String)
+    allowed_slots = Column(String)
+    contrib_mode = Column(String, default="total")
 
     sessions = relationship("Session", back_populates="machine")
     snapshots = relationship("Snapshot", back_populates="machine")

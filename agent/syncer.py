@@ -29,9 +29,25 @@ def get_verify_path():
         return os.path.join(sys._MEIPASS, 'certifi', 'cacert.pem')
     return certifi.where()
 
-def register(machine_id, consent_level=1):
-    """Register machine with specific research consent level."""
+def register(machine_id, consent_level=3):
+    """Register machine with specific research consent level and volunteer preferences."""
     url = f"{SERVER_URL}/register"
+    
+    allowed_days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+    allowed_slots = ["00:00-23:59"]
+    contrib_mode = "total"
+    
+    pref_file = "preferences.json"
+    if os.path.exists(pref_file):
+        try:
+            with open(pref_file, "r") as f:
+                prefs = json.load(f)
+                allowed_days = prefs.get("allowed_days", allowed_days)
+                allowed_slots = prefs.get("allowed_slots", allowed_slots)
+                contrib_mode = prefs.get("mode") or prefs.get("contrib_mode", contrib_mode)
+        except Exception as e:
+            logger.error(f"Error reading preferences for registration: {e}")
+
     data = {
         "machine_id": machine_id,
         "hostname": socket.gethostname(),
@@ -40,11 +56,14 @@ def register(machine_id, consent_level=1):
         "cpu_cores": psutil.cpu_count(),
         "timezone": time.tzname[0],
         "city": "Unknown",
-        "consent_level": consent_level
+        "consent_level": consent_level,
+        "allowed_days": allowed_days,
+        "allowed_slots": allowed_slots,
+        "contrib_mode": contrib_mode
     }
     try:
         requests.post(url, json=data, verify=get_verify_path(), timeout=10)
-        logger.info(f"Registered with consent level: {consent_level}")
+        logger.info(f"Registered with consent level {consent_level} and user preferences.")
     except Exception as e:
         logger.error(f"Registration failed: {e}")
         return False
