@@ -1,0 +1,290 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configuration de l'affichage du code source
+\lstset{
+    basicstyle=\tiny\ttfamily,
+    stringstyle=\color{blue},
+    numbers=none,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5}
+}
+
+\title[Présentation du Dataset VC-UY1]{Analyse Technique et Structure du Dataset Historique de Télémétrie (VC-UY1)}
+\subtitle{Étude Empirique des Nœuds Volontaires à l'Université de Yaoundé 1}
+\author[Mémoire de Master 2]{Présenté par : \textbf{Neussi} \\[0.5em] \small Encadrant : \textbf{Dr. Adamou Hamza}}
+\institute[UY1]{Université de Yaoundé I \\ Département d'Informatique \\ Spécialité : Systèmes et Réseaux}
+\date[Mai 2026]{Présentation des Données de Collecte}
+
+\begin{document}
+
+% Slide de Titre
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Slide 1: Contexte et Objectifs
+\begin{frame}{1. Contexte et Objectifs de la Collecte}
+  \begin{block}{Pourquoi ce Dataset Local ?}
+    \begin{itemize}
+      \item \textbf{Limites des traces publiques occidentales :} Les datasets classiques (\textit{Google Cluster, PlanetLab}) ne reflètent pas les contraintes d'infrastructures en Afrique centrale.
+      \item \textbf{Objectif scientifique :} Capturer la \textbf{vérité terrain} pour le calcul volontaire en zone à ressources contraintes.
+    \end{itemize}
+  \end{block}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{Les 3 Verrous Clés Mesurés}
+        \begin{enumerate}
+          \item \textbf{Instabilité Électrique :} Fréquence des délestages.
+          \item \textbf{Fluctuations Réseau :} Coupures de connexion.
+          \item \textbf{Hétérogénéité Matérielle :} Machines grand public.
+        \end{enumerate}
+      \end{alertblock}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Méthodologie de Validation}
+        Permet de faire de la \textbf{simulation pilotée par traces réelles} (\textit{trace-driven simulation}), garantissant une rigueur méthodologique incontestable pour le mémoire.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 2: Volumétrie et Caractéristiques
+\begin{frame}{2. Volumétrie et Caractéristiques Globales}
+  La campagne de collecte a été réalisée auprès de participants volontaires à Yaoundé.
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Chiffres Clés du Dataset}
+        \begin{itemize}
+          \item \textbf{Période de collecte :} 18 juin 2025 au 17 juillet 2025 (soit exactement \textbf{29 jours, 3 heures et 36 minutes}).
+          \item \textbf{Nœuds actifs suivis :} \textbf{68 machines réelles}.
+          \item \textbf{Distribution OS :} 59 Linux (86.8\%) et 9 Windows (13.2\%).
+          \item \textbf{Volume Total Brut :} \textbf{3.17 Go}.
+          \item \textbf{Fréquence de mesure :} \textbf{60 secondes} (Haute fréquence).
+          \item \textbf{Nombre total de snapshots :} \textbf{3 258 197 enregistrements}.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Formats Disponibles}
+        \begin{itemize}
+          \item \textbf{Brut :} Fichiers BSON (Binary JSON) issus de MongoDB.
+          \item \textbf{Exports structurés :} Formats \textbf{SQL (SQLite), CSV, Excel (XLSX), et TXT} pour simplifier l'analyse statistique directe.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 3: Organisation des Données (Collections)
+\begin{frame}{3. Organisation Générale des Fichiers (Collections)}
+  Le dataset est structuré en trois entités logiques distinctes pour optimiser les requêtes et dissocier le matériel du comportement temporel :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.31\textwidth}
+      \begin{block}{\texttt{machine\_ids.bson} (12.2 Ko)}
+        \textbf{Le Registre des Nœuds}
+        \begin{itemize}
+          \item Anonymisation des MAC.
+          \item Statut général de la machine.
+          \item Dates de début/fin d'activité.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.31\textwidth}
+      \begin{block}{\texttt{static\_data.bson} (728.9 Ko)}
+        \textbf{Configurations Fixes}
+        \begin{itemize}
+          \item Capacité CPU \& RAM.
+          \item Profils de stockage.
+          \item Présence de batterie physique.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.31\textwidth}
+      \begin{block}{\texttt{variable\_data.bson} (3.17 Go)}
+        \textbf{Télémétrie Dynamique}
+        \begin{itemize}
+          \item Charge CPU \& RAM minute par minute.
+          \item Source d'alimentation.
+          \item Connectivité internet.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 4: Dictionnaire de Données - Données Statiques
+\begin{frame}{4. Dictionnaire de Données : Fiches Matérielles}
+  \begin{block}{1. Collection \texttt{machine\_ids} (Identification des Volontaires)}
+    \begin{itemize}
+      \item \texttt{machine\_id} : Hachage anonyme (SHA-256 de la MAC) pour le suivi longitudinal.
+      \item \texttt{hostname} : Nom d'hôte de la machine.
+      \item \texttt{os\_name} : Système d'exploitation branché (Linux/Windows).
+      \item \texttt{first\_seen} / \texttt{last\_seen} : Timestamps d'activité.
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{2. Collection \texttt{static\_data} (Fiche Technique Fixe)}
+    \begin{itemize}
+      \item \textbf{Processeur (\texttt{cpu}) :} Modèle précis, nombre de cœurs physiques et logiques.
+      \item \textbf{Mémoire (\texttt{ram\_total}) :} Quantité totale de mémoire en Go ou Mo.
+      \item \textbf{Stockage (\texttt{disques}) :} Taille des disques, partitions actives et systèmes de fichiers (ext4, NTFS).
+      \item \textbf{Périphériques (\texttt{usb}) :} Périphériques externes branchés au démarrage.
+      \item \textbf{Alimentation (\texttt{battery\_initial}) :} Présence matérielle d'une batterie physique.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% Slide 5: Dictionnaire de Données - Données Dynamiques
+\begin{frame}{5. Dictionnaire de Données : Télémétrie Temporelle}
+  La collection \texttt{variable\_data} compile l'évolution dynamique de chaque nœud :
+  
+  \begin{table}[]
+    \centering
+    \tiny
+    \begin{tabular}{lll}
+      \toprule
+      \textbf{Champ de Données} & \textbf{Type} & \textbf{Signification et Intérêt de Recherche} \\
+      \midrule
+      \texttt{machine\_id} & String (Hash) & Clé de jointure avec le registre de machines. \\
+      \texttt{timestamp} & Date & Horodatage précis au format standard MongoDB ISODate. \\
+      \texttt{cpu.global\_utilise} & Float (\%) & Pourcentage instantané de charge de travail globale du processeur. \\
+      \texttt{cpu.par\_coeur} & Array [Object] & Utilisation détaillée processeur cœur par cœur. \\
+      \texttt{cpu.temperature} & Float (°C) & Température interne du CPU (Throttling thermique). \\
+      \texttt{memoire.ram} & Object & Pourcentage utilisé, Mo utilisés, Mo disponibles. \\
+      \texttt{memoire.swap} & Object & Mémoire d'échange Swap utilisée (surcharge mémoire). \\
+      \texttt{connexion\_internet} & Boolean & Vrai/Faux -- Capacité de communiquer avec le réseau extérieur. \\
+      \texttt{reseau.octets\_envoyes} & String & Trafic réseau montant cumulé. \\
+      \texttt{reseau.octets\_recus} & String & Trafic réseau descendant cumulé. \\
+      \texttt{battery.power\_plugged} & Boolean & Source d'énergie : Vrai (Secteur CA), Faux (Batterie déchargée/Coupure). \\
+      \texttt{battery.percent} & Float (\%) & Niveau de charge actuel de la batterie. \\
+      \texttt{uptime} & String & Temps écoulé depuis le dernier démarrage de l'OS. \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+% Slide 6: Échantillon Réel de Données (variable_data.bson)
+\begin{frame}[fragile]{6. Échantillon Réel de Télémétrie (variable\_data.bson)}
+  Voici un document original extrait directement du dataset brut :
+  
+  \begin{lstlisting}
+{
+  "machine_id": "971a2618a11961e75da9470e31aea312",
+  "timestamp": { "$date": "2025-06-18T22:51:23.659Z" },
+  "cpu": {
+    "global_utilise": 18.5,
+    "par_coeur": [
+      { "core": 0, "utilisation": 22.0 },
+      { "core": 1, "utilisation": 15.0 }
+    ],
+    "temperature": 55.0
+  },
+  "memoire": {
+    "ram": { "pourcentage_utilise": 74.3, "utilisee": "9.63 GB", "disponible": "3.98 GB" },
+    "swap": { "pourcentage_utilise": 20.9, "utilisee": "4.19 GB", "disponible": "15.81 GB" }
+  },
+  "connexion_internet": true,
+  "reseau": { "octets_envoyes": "1.39 GB", "octets_recus": "2.10 GB" },
+  "battery": {
+    "has_battery": 1,
+    "percent": 85.0,
+    "power_plugged": true,
+    "autonomy": "2h 15m"
+  },
+  "uptime": "1 day, 13:53:23.898590"
+}
+  \end{lstlisting}
+\end{frame}
+
+% Slide 7: Comment ce Dataset nous aide (Valeur Scientifique)
+\begin{frame}{7. Comment ce Dataset nous aide (Valeur Scientifique)}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{1. Modélisation de l'Instabilité Électrique}
+        En analysant les transitions du champ \texttt{battery.power\_plugged} (Vrai $\rightarrow$ Faux) et la perte de signal sur les machines fixes, nous pouvons cartographier et analyser la fréquence et la durée moyenne des délestages par zone.
+      \end{block}
+      
+      \begin{block}{2. Profils Temporels de Présence Humaine}
+        L'évolution combinée du CPU et de l'idle time révèle les habitudes d'utilisation des ordinateurs (périodes de pointe professionnelles, repos nocturne, variations du week-end).
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{3. Mesure du Coût Réseau}
+        La surveillance de \texttt{reseau.octets\_envoyes} et \texttt{octets\_recus} permet de quantifier précisément l'empreinte et le volume réseau requis par l'agent, garantissant une conception respectueuse des forfaits internet mobiles des volontaires.
+      \end{block}
+      
+      \begin{block}{4. Hétérogénéité des Nœuds}
+        Le croisement avec les données statiques montre la distribution réelle de la puissance disponible (majorité de machines à $\le$ 4 Go de RAM).
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 8: Comment déjà utiliser et explorer ces données ?
+\begin{frame}[fragile]{8. Méthode d'Exploitation : Chargement Frugal (Python)}
+  Pour analyser les 3,17 Go sans saturer la RAM de la machine de recherche, nous utilisons un chargement itératif par bloc (\textit{streaming}) via la bibliothèque `pymongo/bson` :
+  
+  \begin{lstlisting}[language=python, basicstyle=\tiny\ttfamily, stringstyle=\color{green!50!black}, keywordstyle=\color{blue}]
+import bson
+import numpy as np
+
+VARIABLE_BSON = "machine_monitoring/variable_data.bson"
+
+# Lecture itérative en flux continu
+with open(VARIABLE_BSON, "rb") as f:
+    for doc in bson.decode_file_iter(f):
+        machine_id = doc.get("machine_id")
+        cpu_percent = doc.get("cpu", {}).get("global_utilise", 0.0)
+        power_state = doc.get("battery", {}).get("power_plugged", True)
+        
+        # Traitement à la volée (ex: calculs de moyennes, statistiques de coupures)
+        if not power_state:
+            print(f"Coupure électrique détectée sur {machine_id}")
+  \end{lstlisting}
+  
+  \begin{exampleblock}{Usages Pratiques Immédiats}
+    \begin{itemize}
+      \item Génération de courbes de charge CPU/RAM moyennes.
+      \item Tracé d'histogrammes sur la durée moyenne des délestages à Yaoundé.
+      \item Analyse statistique des micro-coupures de connexion réseau.
+    \end{itemize}
+  \end{exampleblock}
+\end{frame}
+
+% Slide 9: Conclusion
+\begin{frame}{9. Conclusion}
+  \begin{block}{Un Atout Empirique Exceptionnel}
+    Ce jeu de données de 3,17 Go constitue l'un des rares efforts documentés de télémétrie système haute fréquence en Afrique centrale.
+    \begin{itemize}
+      \item \textbf{Réalisme absolu :} Évite toute hypothèse d'infrastructures parfaites.
+      \item \textbf{Rigueur scientifique :} Assure des simulations basées sur des traces 100\% camerounaises réelles.
+      \item \textbf{Richesse fonctionnelle :} Donne une visibilité totale sur l'utilisation du matériel, le réseau, et les délestages.
+    \end{itemize}
+  \end{block}
+  
+  \centering
+  \vspace{1em}
+  \Large\textbf{Merci pour votre attention. Place aux questions.}
+\end{frame}
+
+\end{document}

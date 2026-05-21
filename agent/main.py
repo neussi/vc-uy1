@@ -45,7 +45,7 @@ def get_consent():
     if os.path.exists(consent_file):
         try:
             with open(consent_file, "r") as f:
-                return json.load(f).get("consent_level", 1)
+                return json.load(f).get("consent_level", 3)
         except:
             pass
             
@@ -59,11 +59,21 @@ def get_consent():
     print("4. Feedback : Enquêtes d'expérience utilisateur")
     print("="*60)
     
-    level = 3 
-    print(f"-> Niveau sélectionné par défaut pour la recherche : {level}")
+    level = 3
+    try:
+        ans = input("Entrez votre choix (1-4) [Par défaut: 3] : ").strip()
+        if ans in ["1", "2", "3", "4"]:
+            level = int(ans)
+    except (EOFError, KeyboardInterrupt):
+        pass
+        
+    print(f"-> Niveau sélectionné : {level}")
     
-    with open(consent_file, "w") as f:
-        json.dump({"consent_level": level, "accepted_at": time.time()}, f)
+    try:
+        with open(consent_file, "w") as f:
+            json.dump({"consent_level": level, "accepted_at": time.time()}, f)
+    except Exception as e:
+        logger.error(f"Failed to write consent: {e}")
     return level
 
 def set_preferences():
@@ -75,20 +85,33 @@ def set_preferences():
     print("\n" + "="*60)
     print("   CONFIGURATIONS DE DISPONIBILITÉ (Recherche)")
     print("="*60)
-    print("Souhaitez-vous limiter la collecte à certaines heures ?")
+    print("Souhaitez-vous limiter la collecte à certaines heures ? (o/N)")
     print("Par défaut : 24h/24 (Optimal pour la précision du modèle)")
-    print("Appuyez sur Entrée pour accepter, ou configurez plus tard dans preferences.json")
     print("="*60)
     
-    # Default preferences
     prefs = {
         "allowed_days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
         "allowed_slots": ["00:00-23:59"]
     }
     
-    with open(pref_file, "w") as f:
-        json.dump(prefs, f, indent=4)
-    print("-> Préférences enregistrées (24h/7j).")
+    try:
+        ans = input("Limiter la collecte ? (o/N) [Par défaut: N] : ").strip().lower()
+        if ans in ["o", "oui", "y", "yes"]:
+            days_input = input("Entrez les jours autorisés (ex: mon,tue,wed) [Par défaut: tous] : ").strip()
+            if days_input:
+                prefs["allowed_days"] = [d.strip().lower() for d in days_input.split(",") if d.strip()]
+            slots_input = input("Entrez les tranches horaires autorisées (ex: 08:00-12:00,14:00-18:00) [Par défaut: 24h/24] : ").strip()
+            if slots_input:
+                prefs["allowed_slots"] = [s.strip() for s in slots_input.split(",") if s.strip()]
+    except (EOFError, KeyboardInterrupt):
+        pass
+        
+    try:
+        with open(pref_file, "w") as f:
+            json.dump(prefs, f, indent=4)
+        print("-> Préférences de disponibilité enregistrées.")
+    except Exception as e:
+        logger.error(f"Failed to write preferences: {e}")
 
 def daemonize():
     """Fork the process into the background (Linux/Posix only)."""
@@ -123,9 +146,14 @@ def daemonize():
         os.dup2(f.fileno(), sys.stderr.fileno())
 
 def main():
-    # 0. Show welcome message
-    print_welcome_message()
-    
+    # 0. Check if --setup mode is requested
+    if "--setup" in sys.argv:
+        print_welcome_message()
+        get_consent()
+        set_preferences()
+        print("\nConfiguration terminée avec succès. L'agent démarrera automatiquement en arrière-plan.")
+        sys.exit(0)
+
     # 1. Interactive setup before backgrounding
     consent_level = get_consent()
     set_preferences()
@@ -133,6 +161,7 @@ def main():
     # 2. Backgrounding
     if "--foreground" not in sys.argv:
         daemonize()
+
 
     logger.info("Starting VC-Agent Daemon...")
     

