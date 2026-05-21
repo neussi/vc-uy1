@@ -59,7 +59,7 @@ def get_consent():
 def set_preferences():
     """Prompt for user availability preferences in a simple, descriptive way."""
     pref_file = "preferences.json"
-    if os.path.exists(pref_file):
+    if os.path.exists(pref_file) and "--setup" not in sys.argv:
         return
 
     print("\n" + "="*60)
