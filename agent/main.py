@@ -40,35 +40,15 @@ def print_welcome_message():
     print("\nL'agent fonctionne maintenant en arrière-plan. Vous pouvez fermer ce terminal.\n")
 
 def get_consent():
-    """Load or prompt for Research Consent Level (GLOBECOM 2023)."""
+    """Silently write/return default research consent level (level 3)."""
     consent_file = "consent.json"
+    level = 3
     if os.path.exists(consent_file):
         try:
             with open(consent_file, "r") as f:
                 return json.load(f).get("consent_level", 3)
         except:
             pass
-            
-    print("\n" + "="*60)
-    print("   UNIVERSITY OF YAOUNDE 1 - RESEARCH CONSENT FRAMEWORK")
-    print("="*60)
-    print("Veuillez choisir votre niveau de partage de données :")
-    print("1. Essentiel : Profil matériel, disponibilité de base")
-    print("2. Système : Métriques de performance, patterns d'erreurs")
-    print("3. Recherche : Modèles comportementaux anonymisés (Standard)")
-    print("4. Feedback : Enquêtes d'expérience utilisateur")
-    print("="*60)
-    
-    level = 3
-    try:
-        ans = input("Entrez votre choix (1-4) [Par défaut: 3] : ").strip()
-        if ans in ["1", "2", "3", "4"]:
-            level = int(ans)
-    except (EOFError, KeyboardInterrupt):
-        pass
-        
-    print(f"-> Niveau sélectionné : {level}")
-    
     try:
         with open(consent_file, "w") as f:
             json.dump({"consent_level": level, "accepted_at": time.time()}, f)
@@ -77,41 +57,92 @@ def get_consent():
     return level
 
 def set_preferences():
-    """Prompt for user availability preferences."""
+    """Prompt for user availability preferences in a simple, descriptive way."""
     pref_file = "preferences.json"
     if os.path.exists(pref_file):
         return
 
     print("\n" + "="*60)
-    print("   CONFIGURATIONS DE DISPONIBILITÉ (Recherche)")
+    print("   PREFERENCES DE DISPONIBILITE DU VOLONTAIRE")
     print("="*60)
-    print("Souhaitez-vous limiter la collecte à certaines heures ? (o/N)")
-    print("Par défaut : 24h/24 (Optimal pour la précision du modèle)")
+    print("A quel moment souhaitez-vous que votre machine soit utilisee ?")
+    print("1. Tout le temps (24h/24, 7j/7) [Recommande]")
+    print("2. Seulement la nuit (22h00 - 06h00)")
+    print("3. Seulement le matin (06h00 - 12h00)")
+    print("4. Seulement l'apres-midi (12h00 - 18h00)")
+    print("5. Le soir (18h00 - 22h00)")
     print("="*60)
     
+    moment = "1"
+    try:
+        ans = input("Entrez votre choix (1-5) [Par defaut: 1] : ").strip()
+        if ans in ["1", "2", "3", "4", "5"]:
+            moment = ans
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+    # Map moment to allowed_slots
+    slots = ["00:00-23:59"]
+    if moment == "2":
+        slots = ["22:00-06:00"]
+    elif moment == "3":
+        slots = ["06:00-12:00"]
+    elif moment == "4":
+        slots = ["12:00-18:00"]
+    elif moment == "5":
+        slots = ["18:00-22:00"]
+
+    print("\n" + "="*60)
+    print("Quels jours de la semaine autorisez-vous ?")
+    print("1. Tous les jours (Lundi a Dimanche) [Recommande]")
+    print("2. En semaine uniquement (Lundi a Vendredi)")
+    print("3. Le week-end uniquement (Samedi et Dimanche)")
+    print("="*60)
+    
+    days_choice = "1"
+    try:
+        ans = input("Entrez votre choix (1-3) [Par defaut: 1] : ").strip()
+        if ans in ["1", "2", "3"]:
+            days_choice = ans
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+    # Map days_choice to allowed_days
+    days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+    if days_choice == "2":
+        days = ["mon", "tue", "wed", "thu", "fri"]
+    elif days_choice == "3":
+        days = ["sat", "sun"]
+
+    print("\n" + "="*60)
+    print("Quel type de contribution preferez-vous ?")
+    print("1. Contribution Totale (100% de la ressource libre utilisee)")
+    print("2. Contribution Partielle (Limiter la charge CPU pour ne pas ralentir)")
+    print("="*60)
+    
+    contrib_choice = "1"
+    try:
+        ans = input("Entrez votre choix (1-2) [Par defaut: 1] : ").strip()
+        if ans in ["1", "2"]:
+            contrib_choice = ans
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+    mode = "total" if contrib_choice == "1" else "partial"
+
     prefs = {
-        "allowed_days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
-        "allowed_slots": ["00:00-23:59"]
+        "allowed_days": days,
+        "allowed_slots": slots,
+        "mode": mode
     }
     
     try:
-        ans = input("Limiter la collecte ? (o/N) [Par défaut: N] : ").strip().lower()
-        if ans in ["o", "oui", "y", "yes"]:
-            days_input = input("Entrez les jours autorisés (ex: mon,tue,wed) [Par défaut: tous] : ").strip()
-            if days_input:
-                prefs["allowed_days"] = [d.strip().lower() for d in days_input.split(",") if d.strip()]
-            slots_input = input("Entrez les tranches horaires autorisées (ex: 08:00-12:00,14:00-18:00) [Par défaut: 24h/24] : ").strip()
-            if slots_input:
-                prefs["allowed_slots"] = [s.strip() for s in slots_input.split(",") if s.strip()]
-    except (EOFError, KeyboardInterrupt):
-        pass
-        
-    try:
         with open(pref_file, "w") as f:
             json.dump(prefs, f, indent=4)
-        print("-> Préférences de disponibilité enregistrées.")
+        print("\n-> Vos preferences de calcul ont ete enregistrees avec succes !")
     except Exception as e:
         logger.error(f"Failed to write preferences: {e}")
+
 
 def daemonize():
     """Fork the process into the background (Linux/Posix only)."""
