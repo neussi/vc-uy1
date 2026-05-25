@@ -2,6 +2,7 @@ import time
 import sys
 import uuid
 import heartbeat, collector, syncer, persistence
+from predictor import FrugalPredictor, SlidingWindowBuffer
 import logging
 import os
 import json
@@ -211,12 +212,20 @@ def main():
     syncer.register(machine_id, consent_level=consent_level)
     syncer.start_session(machine_id, session_id)
     
+    # Initialize RLS predictor & sliding buffer
+    predictor = FrugalPredictor()
+    sliding_buffer = SlidingWindowBuffer()
+    
     # NEW: Immediate Startup Pulse (for instant visibility)
     logger.info("Sending initial startup pulse...")
     initial_stats = collector.get_stats(aggregate=False)
+    
+    # Predict initial step
+    x_init = predictor.extract_features(initial_stats)
+    initial_stats["predicted_availability"] = predictor.predict(x_init)
+    
     syncer.sync_batch(machine_id, session_id, [initial_stats])
     
-    # 5. Main collection loop (Privacy-Aware)
     # 5. Main collection loop (Privacy-Aware)
     last_power_status = None
     try:
@@ -244,9 +253,25 @@ def main():
             if syncer.check_connectivity():
                 # Get the aggregated stats (averages)
                 final_stats = collector.get_stats(aggregate=True)
+                
+                # Extract features and predict availability
+                x_current = predictor.extract_features(final_stats)
+                y_pred = predictor.predict(x_current)
+                final_stats["predicted_availability"] = y_pred
+                
+                # Target y_t for RLS: 1.0 if power is plugged, 0.0 otherwise
+                y_current = 1.0 if final_stats.get("power_plugged", True) else 0.0
+                
+                # RLS state update
+                predictor.update(x_current, y_current)
+                predictor.save_weights()
+                
+                # Append to sliding 72h window
+                sliding_buffer.append(final_stats)
+                
                 syncer.sync_batch(machine_id, session_id, [final_stats])
                 collector.clear_aggregation_buffers()
-                logger.info("Aggregated snapshot synchronized.")
+                logger.info("Aggregated snapshot synchronized with RLS prediction update.")
     except KeyboardInterrupt:
         logger.info("Shutting down cleanly...")
         heartbeat.write_heartbeat(shutdown_clean=True)

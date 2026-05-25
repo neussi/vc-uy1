@@ -240,8 +240,35 @@
   \end{columns}
 \end{frame}
 
-% Slide 8: Comment déjà utiliser et explorer ces données ?
-\begin{frame}[fragile]{8. Méthode d'Exploitation : Chargement Frugal (Python)}
+% Slide 8: Méthodologie Prédictive & Apprentissage Continu
+\begin{frame}{8. Architecture Hybride \& Apprentissage Continu Résilient}
+  Pour prédire la disponibilité des nœuds malgré les délestages de Yaoundé, nous déployons une architecture hybride à deux niveaux dans l'agent local :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{1. Baseline Linéaire RLS-ARX}
+        \begin{itemize}
+          \item \textbf{Modèle ARX :} Prédit la disponibilité à partir des retards et entrées exogènes (secteur CA, batterie).
+          \item \textbf{Moindres Carrés Récursifs (RLS) :} Algorithme récursif en ligne.
+          \item \textbf{Oubli Exponentiel ($\lambda = 0.995$) :} S'adapte au drift sans stocker d'historique en RAM ($< 1$ Ko).
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{2. Modèle Non-Linéaire GRU}
+        \begin{itemize}
+          \item \textbf{Fenêtre Glissante (72h) :} Buffer local compact de 200 Ko pour le ré-entraînement périodique (toutes les 24h).
+          \item \textbf{Régularisation EWC :} (\textit{Elastic Weight Consolidation}) préserve les connaissances de BOINC contre l'oubli catastrophique des anomalies temporaires.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 9: Comment déjà utiliser et explorer ces données ?
+\begin{frame}[fragile]{9. Méthode d'Exploitation : Chargement Frugal (Python)}
   Pour analyser les 3,17 Go sans saturer la RAM de la machine de recherche, nous utilisons un chargement itératif par bloc (\textit{streaming}) via la bibliothèque `pymongo/bson` :
   
   \begin{lstlisting}[language=python, basicstyle=\tiny\ttfamily, stringstyle=\color{green!50!black}, keywordstyle=\color{blue}]

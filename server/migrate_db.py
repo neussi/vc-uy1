@@ -64,7 +64,8 @@ else:
             ("load_avg_1m", "REAL"),
             ("load_avg_5m", "REAL"),
             ("load_avg_15m", "REAL"),
-            ("process_count", "INTEGER")
+            ("process_count", "INTEGER"),
+            ("predicted_availability", "REAL")
         ]
         
         for col_name, col_type in new_snap_cols:

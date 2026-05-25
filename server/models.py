@@ -93,6 +93,7 @@ class Snapshot(Base):
     synthetic_task_active = Column(Boolean, default=False)
     synced = Column(Boolean, default=False)
     is_anonymized = Column(Boolean, default=False)
+    predicted_availability = Column(Float)
     features_json = Column(Text) # The 18-dimension feature vector as a JSON string
 
     session = relationship("Session", back_populates="snapshots")
