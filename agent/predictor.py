@@ -12,7 +12,7 @@ MAX_BUFFER_HOURS = 72
 MINUTES_IN_72H = MAX_BUFFER_HOURS * 60  # 4320 snapshots at 1-min interval
 
 class FrugalPredictor:
-    def __init__(self, feature_dim=11, lambda_coeff=0.995):
+    def __init__(self, feature_dim=11, lambda_coeff=0.99977):
         self.d = feature_dim
         self.lambda_ = lambda_coeff
         
