@@ -1,0 +1,264 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+\title[Architecture \& Workflow VC-UY1]{Architecture Globale et Workflow d'Apprentissage Hybride}
+\subtitle{Intégration de RLS-ARX, GRU-EWC et Quantification TinyML pour le Calcul Volontaire (VC-UY1)}
+\author[Mémoire de Master 2]{Présenté par : \textbf{Neussi} \\[0.5em] \small Encadrant : \textbf{Dr. Adamou Hamza}}
+\institute[UY1]{Université de Yaoundé I \\ Département d'Informatique \\ Spécialité : Systèmes et Réseaux}
+\date[Juin 2026]{Soutenance de Travaux de Recherche}
+
+\begin{document}
+
+% Slide de Titre
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Slide Plan
+\begin{frame}{Plan de la Présentation}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{1. Architecture Système}
+        \begin{itemize}
+          \item Les 3 Piliers du système VC-UY1
+          \item Structure de l'agent local sur le nœud
+        \end{itemize}
+      \end{block}
+      
+      \begin{block}{2. Le Modèle Hybride}
+        \begin{itemize}
+          \item Branche RLS-ARX (Linéaire)
+          \item Branche GRU-EWC (Non-linéaire)
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{3. Workflow d'Entraînement}
+        \begin{itemize}
+          \item Pré-entraînement global (SETI@home)
+          \item Quantification TinyML (INT8)
+          \item Co-adaptation et régularisation locale
+        \end{itemize}
+      \end{block}
+      
+      \begin{block}{4. Intégration \& Ordonnancement}
+        \begin{itemize}
+          \item Soumission et migration de tâches
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 3: Les 3 Piliers de l'Architecture
+\begin{frame}{1. L'Architecture Générale en 3 Piliers}
+  Le système VC-UY1 est conçu autour de trois piliers interdépendants :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.31\textwidth}
+      \begin{block}{Pilier 1 : Télémétrie}
+        \begin{itemize}
+          \item Collecte locale (60s)
+          \item Monitoring de l'alimentation secteur, de la batterie, du réseau, et de l'utilisateur
+          \item Buffer local glissant de 72 heures (~200 Ko)
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.31\textwidth}
+      \begin{block}{Pilier 2 : Baseline}
+        \begin{itemize}
+          \item Modèle adaptatif en ligne \textbf{RLS-ARX}
+          \item Mise à jour en continu à chaque minute
+          \item Empreinte mémoire ultra-faible ($< 1$ Ko RAM)
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.31\textwidth}
+      \begin{block}{Pilier 3 : Modèle Profond}
+        \begin{itemize}
+          \item Modèle temporel \textbf{GRU}
+          \item Pré-entraîné mondialement (SETI@home)
+          \item Adapté localement (EWC) sur le buffer des 72h
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 4: L'Architecture du Prédicteur Hybride
+\begin{frame}{2. L'Architecture Interne de l'Agent Prédictif}
+  L'agent local sur chaque machine exécute deux algorithmes en parallèle pour fournir une prédiction robuste :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Branche Linéaire RLS-ARX (Le Réflexe)}
+        \begin{itemize}
+          \item \textbf{Entrée :} Signaux matériels instantanés.
+          \item \textbf{Rôle :} Réagir immédiatement aux coupures physiques (coupures électriques, passage sur batterie).
+          \item \textbf{Mise à jour :} Récursive à chaque minute.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Branche Non-Linéaire GRU-EWC (La Réflexion)}
+        \begin{itemize}
+          \item \textbf{Entrée :} Historique des séquences temporelles.
+          \item \textbf{Rôle :} Capter les habitudes quotidiennes et hebdomadaires de l'utilisateur.
+          \item \textbf{Mise à jour :} Périodique (toutes les 24h).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  
+  \centering
+  \vspace{0.5em}
+  \textbf{Sortie de l'Agent :} Décision fusionnée pour évaluer la stabilité d'un nœud.
+\end{frame}
+
+% Slide 5: Le Workflow d'Entraînement pas à pas
+\begin{frame}{3. Le Workflow Technique d'Entraînement}
+  Le cycle de vie du modèle passe de la recherche en laboratoire au déploiement TinyML sur le terrain :
+  
+  \vspace{0.5em}
+  \begin{block}{Les 5 étapes du Workflow d'Apprentissage}
+    \begin{enumerate}
+      \item \textbf{Pré-entraînement (Serveur de Recherche) :} Entraînement initial du GRU Float32 sur le dataset mondial SETI@home (200 000 PC).
+      \item  \textbf{Quantification TinyML (Serveur) :} Compression des poids Float32 en entiers INT8.
+      \item  \textbf{Déploiement (Nœud Volontaire) :} Installation de l'agent léger sur le PC de l'utilisateur.
+      \item  \textbf{Co-adaptation Récursive (Nœud - Temps réel) :} Le modèle linéaire RLS-ARX s'adapte minute par minute aux pannes de courant locales.
+      \item  \textbf{Fine-tuning Continuel Régularisé (Nœud - Périodique) : } Le GRU s'ajuste toutes les 24h sur le buffer local avec régularisation EWC.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% Slide 6: Étape 1 : Pré-entraînement sur SETI@home
+\begin{frame}{4. Étape 1 : Pré-entraînement sur le dataset global}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Pourquoi cette étape ?}
+        \begin{itemize}
+          \item Les réseaux de neurones profonds ont besoin de beaucoup de données pour converger.
+          \item Les traces locales de Yaoundé sont encore trop jeunes ou limitées.
+          \item Nous utilisons la masse de données de **SETI@home** pour apprendre au GRU les comportements de base des ordinateurs.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Ce que le modèle apprend}
+        \begin{itemize}
+          \item Les dynamiques d'activité utilisateur (heures de repas, repos nocturne).
+          \item Les cycles d'extinction volontaire de fin de journée.
+          \item Les relations temporelles d'une heure à l'autre.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 7: Étape 2 & 3 : Quantification TinyML et Déploiement
+\begin{frame}{5. Étape 2 \& 3 : Quantification et Déploiement Frugal}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{La Quantification INT8}
+        \begin{itemize}
+          \item Conversion des poids mathématiques de Float32 (4 octets) à INT8 (1 octet).
+          \item \textbf{Impact direct :} La RAM requise pour le GRU passe de **8 Mo à moins de 2 Mo**.
+          \item Préservation du score de prédiction : le modèle conserve une précision de $F1 \ge 0,80$.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Le Déploiement Frugal}
+        \begin{itemize}
+          \item L'agent local n'embarque pas de gros frameworks.
+          \item Utilisation d'un moteur d'inférence minimaliste (ex: TensorFlow Lite Micro).
+          \item Zéro perturbation pour l'utilisateur volontaire (utilisation CPU inférieure à 0,1\%).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 8: Étape 4 & 5 : Adaptation Récursive et Fine-Tuning EWC
+\begin{frame}{6. Étape 4 \& 5 : Adaptation Locale et Anti-Oubli}
+  Une fois sur la machine de l'étudiant à Yaoundé, le modèle doit s'adapter aux pannes d'électricité locales :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Adaptation Instantanée (RLS-ARX)}
+        Le modèle linéaire met à jour ses coefficients toutes les minutes dès qu'une coupure survient, en associant la baisse de tension ou le passage sur batterie à la perte imminente de disponibilité.
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Fine-Tuning Local Périodique (GRU)}
+        \begin{itemize}
+          \item Le GRU est ré-entraîné toutes les 24 heures sur le buffer local.
+          \item **Régularisation EWC :** Bloque la modification des poids critiques appris sur SETI@home pour éviter l'oubli catastrophique des cycles généraux.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 9: Intégration dans l'Ordonnanceur (Scheduler)
+\begin{frame}{7. Comment la prédiction est-elle exploitée ?}
+  La prédiction de disponibilité alimente directement le middleware de calcul volontaire :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Soumission Intelligente des Tâches}
+        \begin{itemize}
+          \item Avant d'envoyer un calcul à un nœud volontaire, l'ordonnanceur central interroge l'agent local.
+          \item Si la disponibilité estimée sur la durée du calcul est élevée ($\ge 0,80$), la tâche est soumise.
+          \item Permet d'éviter d'envoyer des tâches longues sur des nœuds sur le point de subir un délestage.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Migration Préventive}
+        \begin{itemize}
+          \item Si le modèle local détecte un délestage imminent (ex: baisse continue de la batterie), il alerte l'ordonnanceur.
+          \item Le calcul en cours est sauvegardé (checkpoint) et migré vers une machine plus stable du réseau.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 10: Conclusion et Perspectives
+\begin{frame}{8. Conclusion}
+  \begin{block}{Une Approche Rigoureuse et Frugale}
+    L'architecture hybride et le workflow d'apprentissage de VC-UY1 apportent des réponses concrètes aux défis locaux :
+    \begin{itemize}
+      \item \textbf{Modélisation Hybride :} Le RLS-ARX pour la réactivité électrique, le GRU-EWC pour les habitudes humaines.
+      \item \textbf{Workflow Scientifique :} Pré-entraînement mondial (SETI@home) garantissant une base stable, suivi d'une adaptation locale sécurisée.
+      \item \textbf{Frugalité Validée :} Utilisation de la quantification INT8 TinyML permettant de respecter les limites strictes du matériel local ($< 10$ Mo RAM).
+    \end{itemize}
+  \end{block}
+  
+  \centering
+  \vspace{1em}
+  \Large\textbf{Merci pour votre attention. Place aux questions.}
+\end{frame}
+
+\end{document}
