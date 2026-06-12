@@ -8,6 +8,8 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning}
 
 \title[Architecture \& Workflow VC-UY1]{Architecture Globale et Workflow d'Apprentissage Hybride}
 \subtitle{Intégration de RLS-ARX, GRU-EWC et Quantification TinyML pour le Calcul Volontaire (VC-UY1)}
@@ -61,88 +63,104 @@
 
 % Slide 3: Les 3 Piliers de l'Architecture
 \begin{frame}{1. L'Architecture Générale en 3 Piliers}
-  Le système VC-UY1 est conçu autour de trois piliers interdépendants :
-  
-  \vspace{0.5em}
   \begin{columns}[T]
-    \begin{column}{0.31\textwidth}
-      \begin{block}{Pilier 1 : Télémétrie}
+    \begin{column}{0.58\textwidth}
+      \begin{block}{Description des Composants}
         \begin{itemize}
-          \item Collecte locale (60s)
-          \item Monitoring de l'alimentation secteur, de la batterie, du réseau, et de l'utilisateur
-          \item Buffer local glissant de 72 heures (~200 Ko)
+          \item \textbf{Pilier 1 : Télémétrie Frugale} \\
+                Collecte locale (60s) de l'alimentation, batterie, réseau et utilisateur. Buffer glissant de 72h.
+          \item \textbf{Pilier 2 : Baseline Linéaire RLS-ARX} \\
+                Modèle adaptatif léger à chaque minute ($< 1$ Ko RAM) pour réagir aux délestages.
+          \item \textbf{Pilier 3 : Modèle Profond GRU-EWC} \\
+                Pré-entraînement global puis adaptation locale anti-oubli.
         \end{itemize}
       \end{block}
     \end{column}
     
-    \begin{column}{0.31\textwidth}
-      \begin{block}{Pilier 2 : Baseline}
-        \begin{itemize}
-          \item Modèle adaptatif en ligne \textbf{RLS-ARX}
-          \item Mise à jour en continu à chaque minute
-          \item Empreinte mémoire ultra-faible ($< 1$ Ko RAM)
-        \end{itemize}
-      \end{block}
-    \end{column}
-    
-    \begin{column}{0.31\textwidth}
-      \begin{block}{Pilier 3 : Modèle Profond}
-        \begin{itemize}
-          \item Modèle temporel \textbf{GRU}
-          \item Pré-entraîné mondialement (SETI@home)
-          \item Adapté localement (EWC) sur le buffer des 72h
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.38\textwidth}
+      \begin{exampleblock}{Schéma de l'Architecture}
+        \centering
+        \vspace{0.5em}
+        \begin{tikzpicture}[scale=0.7, every node/.style={transform shape},
+            box/.style={rectangle, draw=blue!50!black, fill=blue!10, rounded corners, minimum width=3cm, minimum height=1cm, align=center, font=\scriptsize, text width=2.8cm},
+            sched/.style={rectangle, draw=green!50!black, fill=green!10, rounded corners, minimum width=3.3cm, minimum height=0.8cm, align=center, font=\scriptsize\bfseries}]
+            
+            \node[box] (p1) {Pilier 1: Télémétrie\\{\tiny Collecte \& Buffer 72h}};
+            \node[box] (p2) [below=0.6cm of p1] {Pilier 2: RLS-ARX\\{\tiny Baseline Linéaire}};
+            \node[box] (p3) [below=0.6cm of p2] {Pilier 3: GRU-EWC\\{\tiny Modèle Profond}};
+            \node[sched] (sch) [right=0.8cm of p2] {Ordonnanceur\\{\tiny Tasks VC-UY1}};
+            
+            \draw[-latex, thick] (p1) -- (p2);
+            \draw[-latex, thick] (p2) -- (p3);
+            \draw[-latex, thick] (p2) -- (sch);
+            \draw[-latex, thick] (p3) -| (sch);
+        \end{tikzpicture}
+      \end{exampleblock}
     \end{column}
   \end{columns}
 \end{frame}
 
 % Slide 4: L'Architecture du Prédicteur Hybride
 \begin{frame}{2. L'Architecture Interne de l'Agent Prédictif}
-  L'agent local sur chaque machine exécute deux algorithmes en parallèle pour fournir une prédiction robuste :
-  
-  \vspace{0.5em}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Branche Linéaire RLS-ARX (Le Réflexe)}
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Co-existence des deux branches}
         \begin{itemize}
-          \item \textbf{Entrée :} Signaux matériels instantanés.
-          \item \textbf{Rôle :} Réagir immédiatement aux coupures physiques (coupures électriques, passage sur batterie).
-          \item \textbf{Mise à jour :} Récursive à chaque minute.
+          \item Les deux modèles reçoivent en parallèle les mesures d'état courantes.
+          \item \textbf{Branche RLS-ARX :} Agit comme un réflexe local rapide pour détecter les chutes de courant immédiates.
+          \item \textbf{Branche GRU-EWC :} Agit comme le cerveau prédisant les tendances quotidiennes de l'utilisateur.
         \end{itemize}
       \end{block}
     \end{column}
     
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Branche Non-Linéaire GRU-EWC (La Réflexion)}
-        \begin{itemize}
-          \item \textbf{Entrée :} Historique des séquences temporelles.
-          \item \textbf{Rôle :} Capter les habitudes quotidiennes et hebdomadaires de l'utilisateur.
-          \item \textbf{Mise à jour :} Périodique (toutes les 24h).
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.44\textwidth}
+      \begin{exampleblock}{Flux de Prédiction Hybride}
+        \centering
+        \vspace{0.2em}
+        \begin{tikzpicture}[scale=0.65, every node/.style={transform shape},
+            input/.style={circle, draw=blue!50!black, fill=blue!10, minimum size=0.8cm, font=\scriptsize},
+            branch/.style={rectangle, draw=blue!50!black, fill=blue!5, rounded corners, minimum width=3.5cm, minimum height=0.8cm, align=center, font=\scriptsize},
+            merge/.style={circle, draw=orange!50!black, fill=orange!10, minimum size=0.8cm, font=\scriptsize\bfseries},
+            output/.style={rectangle, draw=green!50!black, fill=green!10, rounded corners, minimum width=2.5cm, minimum height=0.6cm, align=center, font=\scriptsize}]
+
+            \node[input] (in) {Input $x_t$};
+            \node[branch] (b1) [above right=0.2cm and 0.8cm of in] {RLS-ARX (Linéaire)\\{\tiny Poids légers (< 1 Ko RAM)}};
+            \node[branch] (b2) [below right=0.2cm and 0.8cm of in] {GRU (Non-linéaire)\\{\tiny INT8 Quantifié (< 2 Mo RAM)}};
+            \node[merge] (m) [below right=0.2cm and 0.8cm of b1] {Fusion};
+            \node[output] (out) [right=0.6cm of m] {Prédiction};
+
+            \draw[-latex, thick] (in) |- (b1);
+            \draw[-latex, thick] (in) |- (b2);
+            \draw[-latex, thick] (b1) -| (m);
+            \draw[-latex, thick] (b2) -| (m);
+            \draw[-latex, thick] (m) -- (out);
+        \end{tikzpicture}
+      \end{exampleblock}
     \end{column}
   \end{columns}
-  
-  \centering
-  \vspace{0.5em}
-  \textbf{Sortie de l'Agent :} Décision fusionnée pour évaluer la stabilité d'un nœud.
 \end{frame}
 
 % Slide 5: Le Workflow d'Entraînement pas à pas
 \begin{frame}{3. Le Workflow Technique d'Entraînement}
-  Le cycle de vie du modèle passe de la recherche en laboratoire au déploiement TinyML sur le terrain :
+  Le passage du modèle de la phase d'apprentissage globale à l'exécution en ligne locale suit 5 étapes clés :
   
-  \vspace{0.5em}
-  \begin{block}{Les 5 étapes du Workflow d'Apprentissage}
-    \begin{enumerate}
-      \item \textbf{Pré-entraînement (Serveur de Recherche) :} Entraînement initial du GRU Float32 sur le dataset mondial SETI@home (200 000 PC).
-      \item  \textbf{Quantification TinyML (Serveur) :} Compression des poids Float32 en entiers INT8.
-      \item  \textbf{Déploiement (Nœud Volontaire) :} Installation de l'agent léger sur le PC de l'utilisateur.
-      \item  \textbf{Co-adaptation Récursive (Nœud - Temps réel) :} Le modèle linéaire RLS-ARX s'adapte minute par minute aux pannes de courant locales.
-      \item  \textbf{Fine-tuning Continuel Régularisé (Nœud - Périodique) : } Le GRU s'ajuste toutes les 24h sur le buffer local avec régularisation EWC.
-    \end{enumerate}
-  \end{block}
+  \vspace{0.8em}
+  \centering
+  \begin{tikzpicture}[scale=0.75, every node/.style={transform shape},
+      stepbox/.style={rectangle, draw=blue!50!black, fill=blue!10, rounded corners, minimum width=2.4cm, minimum height=1.1cm, align=center, font=\scriptsize, text width=2.2cm},
+      arrow/.style={-latex, thick, blue!50!black}]
+      
+      \node[stepbox] (s1) {1. Pré-entraînement\\{\tiny Global (Float32)\\[0.2em] sur SETI@home}};
+      \node[stepbox] (s2) [right=0.4cm of s1] {2. Quantification\\{\tiny TinyML (INT8)\\[0.2em] Division RAM par 4}};
+      \node[stepbox] (s3) [right=0.4cm of s2] {3. Déploiement\\{\tiny Agent Local sur PC volontaires}};
+      \node[stepbox] (s4) [right=0.4cm of s3] {4. Adaptation\\{\tiny RLS-ARX récursive\\[0.2em] minute par minute}};
+      \node[stepbox] (s5) [right=0.4cm of s4] {5. Fine-tuning\\{\tiny GRU-EWC sur 72h\\[0.2em] toutes les 24h}};
+      
+      \draw[arrow] (s1) -- (s2);
+      \draw[arrow] (s2) -- (s3);
+      \draw[arrow] (s3) -- (s4);
+      \draw[arrow] (s4) -- (s5);
+  \end{tikzpicture}
 \end{frame}
 
 % Slide 6: Étape 1 : Pré-entraînement sur SETI@home
