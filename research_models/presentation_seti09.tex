@@ -1,0 +1,252 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{whale}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+% Configuration de l'affichage du code source
+\lstset{
+    basicstyle=\tiny\ttfamily,
+    stringstyle=\color{blue},
+    numbers=none,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5}
+}
+
+\title[Présentation du Dataset SETI@home]{Analyse et Exploitation du Dataset Global BOINC / SETI@home (sat09)}
+\subtitle{Caractérisation, Standardisation (FTA) et Apport pour la Prédiction en Environnement Contraint}
+\author[Mémoire de Master 2]{Présenté par : \textbf{Neussi} \\[0.5em] \small Encadrant : \textbf{Dr. Adamou Hamza}}
+\institute[UY1]{Université de Yaoundé I \\ Département d'Informatique \\ Spécialité : Systèmes et Réseaux}
+\date[Juin 2026]{Apport et Rôle Scientifique des Traces Globales}
+
+\begin{document}
+
+% Slide de Titre
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Slide 1: Contexte et Origine des Traces
+\begin{frame}{1. Contexte et Origine des Traces (sat09)}
+  \begin{block}{Qu'est-ce que SETI@home / BOINC ?}
+    \begin{itemize}
+      \item \textbf{Calcul Volontaire Pionnier :} Projet de calcul distribué mondial (UC Berkeley) utilisant les ressources de calcul inutilisées (CPU/RAM) des ordinateurs connectés à Internet.
+      \item \textbf{Le Failure Trace Archive (FTA) :} Une initiative académique standardisant les traces de disponibilité et de défaillance provenant de divers systèmes distribués mondiaux.
+    \end{itemize}
+  \end{block}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{La Trace sat09}
+        La trace \textbf{sat09} est le jeu de données officiel collecté en instrumentant le client BOINC de SETI@home pour suivre la disponibilité CPU en temps réel.
+      \end{alertblock}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Rôle Académique}
+        Sert de **baseline de référence mondiale** pour valider les modèles de prédiction de disponibilité dans la littérature scientifique.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 2: Volumétrie et Métriques
+\begin{frame}{2. Volumétrie et Caractéristiques du Dataset}
+  Ce dataset se distingue par sa taille massive et sa représentativité globale.
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Chiffres Clés de la Trace}
+        \begin{itemize}
+          \item \textbf{Nombre de nœuds suivis :} Plus de \textbf{227 210 machines réelles} réparties à travers le monde.
+          \item \textbf{Période d'observation :} 1,5 an (de 2007 à 2009).
+          \item \textbf{Nature de la mesure :} Disponibilité CPU binaire (1 = CPU disponible pour le calcul, 0 = CPU occupé par l'utilisateur ou machine éteinte).
+          \item \textbf{Volume compressé brut :} \textbf{2,18 Go} (BSON/textuel).
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Les Formats Disponibles}
+        \begin{itemize}
+          \item \textbf{seti09\_raw.tgz (2.18 Go) :} Traces brutes sans aucun filtrage.
+          \item \textbf{seti09\_tab.tgz (2.15 Go) :} Format nettoyé en colonnes tabulées (Normalisation standard FTA).
+          \item \textbf{seti\_5min\_sql.tgz (2.04 Go) :} Format SQL avec échantillonnage périodique toutes les 5 minutes.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 3: Pourquoi ce Dataset est qualifié de "Propre" (Clean) ?
+\begin{frame}{3. Pourquoi le Dataset est qualifié de ``Propre'' (Clean) ?}
+  Le passage de la trace brute (\textit{raw}) à la trace nettoyée (\textit{tabbed}) obéit aux règles strictes du Failure Trace Archive :
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Règles de Filtrage Temporel}
+        \begin{itemize}
+          \item \textbf{Élimination des micro-intervalles :} Les indisponibilités très courtes ($\le 150$ secondes) survenant après de longues périodes d'activité ($\ge 5$ jours) sont supprimées car jugées non significatives pour l'ordonnancement de tâches.
+          \item \textbf{Résolution des conflits temporels :} Correction des anomalies de synchronisation d'horloge entre les machines volontaires.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Structure Normalisée du Format Tabulaire}
+        Chaque ligne du fichier \texttt{seti09\_tab} est formatée selon le standard du FTA :
+        \begin{itemize}
+          \item \textbf{Event Time :} Date et heure précise du changement d'état.
+          \item \textbf{Host ID :} Identifiant unique et anonyme de la machine.
+          \item \textbf{State :} Statut de disponibilité (0 ou 1).
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 4: Caractéristiques Comportementales Globales
+\begin{frame}{4. Caractéristiques Comportementales Globales}
+  Les traces de SETI@home reflètent un contexte d'infrastructure occidentale stable :
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Cycles Circadiens Marqués}
+        \begin{itemize}
+          \item \textbf{Activité humaine régulière :} Forte corrélation avec l'heure locale (les ordinateurs deviennent indisponibles en journée lorsque les utilisateurs travaillent, et très disponibles la nuit).
+          \item \textbf{Saisonnalité hebdomadaire :} Comportement distinct entre les jours de semaine et le week-end.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{Stabilité Électrique Absolue}
+        \begin{itemize}
+          \item \textbf{Aucun délestage :} L'arrêt d'une machine est toujours une décision humaine (extinction volontaire) ou une mise en veille, jamais une coupure de courant accidentelle.
+          \item \textbf{Alimentation continue :} Pas de gestion de batterie ou de micro-coupures d'alimentation secteur.
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 5: Pourquoi utiliser SETI@home dans notre étude à Yaoundé ?
+\begin{frame}{5. Pourquoi utiliser SETI@home dans notre étude à Yaoundé ?}
+  Avoir le dataset SETI@home en local est une nécessité méthodologique et scientifique pour notre thèse :
+  
+  \begin{block}{Les 3 Rôles Clés dans notre Travail}
+    \begin{enumerate}
+      \item \textbf{Groupe de Contrôle (Baseline comparative) :} Mettre en évidence les spécificités locales de Yaoundé. En comparant les lois de distribution (ex. Weibull), nous prouvons scientifiquement l'effet perturbateur des délestages électriques locaux sur les profils de disponibilité.
+      \item \textbf{Pré-entraînement (Transfer Learning) :} Un modèle profond comme le GRU nécessite des millions de lignes pour converger. Nous le pré-entraînons sur SETI@home pour lui apprendre les dynamiques d'activité CPU globales, avant de l'adapter à Yaoundé.
+      \item \textbf{Validation de l'Apprentissage Continu (EWC) :} Tester la résilience de nos algorithmes d'adaptation (comme l'Elastic Weight Consolidation) pour s'assurer que le modèle conserve la connaissance globale tout en apprenant les délestages.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% Slide 6: Implémentation du Transfer Learning avec EWC
+\begin{frame}{6. Adaptation et Régularisation par EWC}
+  Pour éviter que notre GRU compact ne souffre d'**oubli catastrophique** lorsqu'il passe de SETI@home aux traces locales de Yaoundé :
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Le Mécanisme EWC}
+        \begin{itemize}
+          \item Calcul d'une **matrice d'information de Fisher** ($F$) sur le dataset SETI@home pour identifier les poids critiques du modèle.
+          \item Ajout d'une pénalité quadratique lors de l'entraînement sur les données locales de Yaoundé.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Formulation Mathématique}
+        $$\mathcal{L}(\theta) = \mathcal{L}_{\text{Yaoundé}}(\theta) + \sum_{i} \frac{\lambda_{\text{EWC}}}{2} F_i (\theta_i - \theta_{\text{SETI}, i})^2$$
+        \begin{itemize}
+          \item $\theta_i$ : Paramètres actuels du modèle.
+          \item $\theta_{\text{SETI}, i}$ : Poids optimaux appris sur SETI@home.
+          \item $\lambda_{\text{EWC}}$ : Force de rétention de la mémoire globale.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 7: RLS-ARX : Complémentarité Frugale (TinyML)
+\begin{frame}{7. RLS-ARX : Complémentarité Frugale (TinyML)}
+  En parallèle du GRU profond, le modèle linéaire **RLS-ARX** gère l'adaptation continue locale :
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Frugalité Computationnelle}
+        \begin{itemize}
+          \item \textbf{Zéro stockage d'historique :} Les poids et la covariance inverse ($P_t$) sont mis à jour récursivement sans conserver de données en RAM ($< 1$ Ko).
+          \item \textbf{Mémoire temporelle effective :} Configurée via le facteur d'oubli $\lambda = 0.99977$ pour équivaloir à une fenêtre glissante de 72 heures.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Immunité contre l'Oubli}
+        \begin{itemize}
+          \item \textbf{Convexité stricte :} Résolution d'un problème quadratique convexe garantissant un optimum global unique.
+          \item \textbf{Covariance comme régularisateur :} La matrice de covariance inverse $P_t$ protège les directions caractéristiques stables contre le bruit transitoire.
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 8: Méthodologie d'Exploitation Frugale en Python
+\begin{frame}[fragile]{8. Méthodologie d'Exploitation Frugale (Python)}
+  Pour manipuler les 2,15 Go de traces sans saturer la mémoire vive lors des phases de pré-entraînement :
+  
+  \begin{lstlisting}[language=python, basicstyle=\tiny\ttfamily, stringstyle=\color{green!50!black}, keywordstyle=\color{blue}]
+# Lecture iterative par blocs (streaming) des traces tabulaires
+def stream_seti_traces(file_path):
+    with open(file_path, "r") as f:
+        for line in f:
+            if line.startswith("#") or not line.strip():
+                continue
+            # Parsing d'une ligne normalisee FTA
+            parts = line.strip().split("\t")
+            event_time = float(parts[0])
+            host_id = int(parts[1])
+            state = int(parts[2])
+            
+            yield event_time, host_id, state
+
+# Exemple d'usage pour calculer le taux de disponibilite global
+total_events = 0
+active_events = 0
+for t, host, state in stream_seti_traces("research_models/data_boinc/raw/seti09_tab.txt"):
+    total_events += 1
+    if state == 1:
+        active_events += 1
+print(f"Disponibilite globale : {active_events / total_events * 100:.2f}%")
+  \end{lstlisting}
+\end{frame}
+
+% Slide 9: Conclusion et Perspectives
+\begin{frame}{9. Conclusion et Perspectives}
+  \begin{block}{Un Couplage de Données Robuste et Rigoureux}
+    L'intégration locale du dataset SETI@home aux côtés de nos données réelles de Yaoundé (VC-UY1) apporte à la recherche :
+    \begin{itemize}
+      \item \textbf{Solidité comparative :} Une preuve claire et formelle de l'impact de l'instabilité électrique locale sur la disponibilité système.
+      \item \textbf{Rigueur méthodologique :} Une validation du transfert de connaissances (Transfer Learning) d'une échelle mondiale à une échelle locale contrainte.
+      \item \textbf{Pertinence TinyML :} Une architecture hybride (RLS-ARX frugal et GRU-EWC quantifié) optimisant la précision de prédiction sous contrainte stricte de RAM ($< 10$ Mo).
+    \end{itemize}
+  \end{block}
+  
+  \centering
+  \vspace{1em}
+  \Large\textbf{Merci pour votre attention. Place aux questions.}
+\end{frame}
+
+\end{document}
