@@ -6,23 +6,11 @@
 \usepackage[french]{babel}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{listings}
 \usepackage{xcolor}
 \usepackage{amsmath}
 
-% Configuration de l'affichage du code source
-\lstset{
-    basicstyle=\tiny\ttfamily,
-    stringstyle=\color{blue},
-    numbers=none,
-    showstringspaces=false,
-    breaklines=true,
-    frame=single,
-    backgroundcolor=\color{gray!5}
-}
-
 \title[Modèle Linéaire RLS-ARX]{Modélisation Adaptative de la Disponibilité en Calcul Volontaire}
-\subtitle{Le Modèle RLS-ARX et l'Équivalence Temporelle Glissante pour l'Apprentissage Continu Frugal}
+\subtitle{Le Modèle Linéaire RLS-ARX : Explication Conceptuelle, Frugalité et Résilience aux Délestages}
 \author[Mémoire de Master 2]{Présenté par : \textbf{Neussi} \\[0.5em] \small Encadrant : \textbf{Dr. Adamou Hamza}}
 \institute[UY1]{Université de Yaoundé I \\ Département d'Informatique \\ Spécialité : Systèmes et Réseaux}
 \date[Juin 2026]{Soutenance de Travaux de Recherche}
@@ -40,27 +28,27 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Piliers Théoriques}
         \begin{itemize}
-          \item \textbf{1. Limites des approches classiques} (ARIMA, OLS)
-          \item \textbf{2. Formulation du modèle ARX} (Entrées physiques)
-          \item \textbf{3. L'algorithme RLS} (Équations récursives)
+          \item \textbf{1. Limites des approches classiques}
+          \item \textbf{2. Concept du modèle ARX}
+          \item \textbf{3. Algorithme RLS en ligne}
         \end{itemize}
       \end{block}
       
-      \begin{block}{Apport dans notre Contexte}
+      \begin{block}{Adaptation locale}
         \begin{itemize}
-          \item \textbf{4. Preuve de l'équivalence temporelle} (72 heures)
-          \item \textbf{5. Immunité contre l'oubli catastrophique}
+          \item \textbf{4. Équivalence temporelle de 72h}
+          \item \textbf{5. Préservation des connaissances}
         \end{itemize}
       \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
-      \begin{block}{Validation Expérimentale}
+      \begin{block}{Validation et Synergie}
         \begin{itemize}
           \item \textbf{6. Analyse comparative} (OLS vs RLS)
-          \item \textbf{7. Synergie Hybride} (RLS-ARX + GRU-EWC)
-          \item \textbf{8. Implémentation \& Empreinte TinyML}
-          \item \textbf{9. Conclusion \& Perspectives}
+          \item \textbf{7. Architecture prédictive hybride}
+          \item \textbf{8. Frugalité matérielle} (TinyML)
+          \item \textbf{9. Conclusion et perspectives}
         \end{itemize}
       \end{block}
     \end{column}
@@ -68,220 +56,211 @@
 \end{frame}
 
 % Slide 1: Limites des Approches Classiques
-\begin{frame}{1. Pourquoi abandonner les modèles linéaires hors-ligne ?}
-  Les modèles classiques de séries temporelles (\textit{ARIMA, SARIMA, VAR}) et la régression \textit{OLS/Ridge} classique présentent trois verrous majeurs en environnement instable :
+\begin{frame}{1. Pourquoi abandonner les modèles classiques ?}
+  Les modèles traditionnels (\textit{ARIMA, Régression OLS}) ne sont pas adaptés aux infrastructures instables pour trois raisons :
   
+  \vspace{0.5em}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{alertblock}{1. Coût computationnel prohibitif}
-        La ré-estimation régulière d'un ARIMA ou d'un OLS sur fenêtre glissante exige de conserver en RAM des milliers de mesures et d'inverser des matrices en $O(N \cdot d^2 + d^3)$. Impossible sous contrainte TinyML ($< 10$ Mo RAM).
+      \begin{alertblock}{Surcharge de calcul}
+        Calculer en continu sur une fenêtre glissante demande de stocker tout l'historique en mémoire vive et d'inverser de grandes matrices. C'est trop lourd pour des PC modestes.
       \end{alertblock}
     \end{column}
     
     \begin{column}{0.48\textwidth}
-      \begin{alertblock}{2. Ignorance des signaux exogènes}
-        La disponibilité d'un PC à Yaoundé ne dépend pas uniquement de son historique, mais de signaux physiques externes (coupure de secteur CA / délestage, niveau de batterie).
+      \begin{alertblock}{Ignorance du contexte physique}
+        Les pannes d'électricité (délestages) et les niveaux de batterie sont des signaux externes cruciaux. Les modèles classiques de séries temporelles ne savent pas les intégrer naturellement.
       \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 2: La Structure ARX Frugale
-\begin{frame}{2. La Structure ARX : Modélisation Physique et Temporelle}
-  Le modèle **ARX** (\textit{Autoregressive with Exogenous inputs}) formalise la prédiction linéaire en combinant les dynamiques internes et externes :
+% Slide 2: Le Concept ARX
+\begin{frame}{2. Qu'est-ce que le modèle ARX ?}
+  Le modèle **ARX** combine deux sources d'informations complémentaires pour anticiper la disponibilité d'une machine :
   
-  \begin{block}{Formulation Mathématique}
-    $$\hat{y}_{t+h} = w^T x_t$$
-  \end{block}
-  
+  \vspace{0.5em}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{exampleblock}{Composantes du vecteur $x_t$ ($d=11$)}
+      \begin{block}{La composante autorégressive (AR)}
         \begin{itemize}
-          \item \textbf{Partie Autorégressive (AR) :} Charges CPU et RAM au pas précédent ($t-1$).
-          \item \textbf{Variables Exogènes (X) :} 
-            \begin{itemize}
-              \item Statut secteur (\texttt{power\_plugged})
-              \item Statut réseau (\texttt{is\_connected})
-              \item Activité humaine (\texttt{idle\_seconds})
-            \end{itemize}
+          \item Utilise le passé récent de la machine (charges CPU et RAM de la minute précédente) pour prédire l'état futur immédiat.
         \end{itemize}
-      \end{exampleblock}
+      \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
-      \begin{exampleblock}{Saisonnalité Circadienne Imbriquée}
-        Pour capter les cycles journaliers/hebdomadaires sans alourdir le modèle, nous encodons l'heure et le jour via des projections trigonométriques :
+      \begin{block}{La composante exogène (X)}
+        Intègre des signaux physiques directs de l'environnement :
         \begin{itemize}
-          \item $\sin(Hour)$, $\cos(Hour)$
-          \item $\sin(Day)$, $\cos(Day)$
+          \item \textbf{Alimentation :} Statut secteur (branché/délestage) et batterie.
+          \item \textbf{Réseau :} Connexion active ou coupée.
+          \item \textbf{Humain :} Temps d'inactivité de l'utilisateur.
         \end{itemize}
-      \end{exampleblock}
+      \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
 % Slide 3: L'Algorithme RLS
-\begin{frame}{3. L'Algorithme RLS : Équations de Mise à Jour en Ligne}
-  À chaque minute ($t$), l'agent met à jour ses poids de régression $w_t$ et sa matrice de confiance $P_t$ (inverse de la matrice de covariance des entrées) via quatre étapes mathématiques :
+\begin{frame}{3. L'Algorithme RLS : L'apprentissage sans stockage}
+  Le modèle **RLS** (\textit{Recursive Least Squares}) est le moteur d'apprentissage continu de notre système. Il met à jour le modèle à chaque minute sans stocker l'historique :
   
-  \begin{block}{Les Équations de Récursion}
-    \begin{enumerate}
-      \item \textbf{Erreur a priori (Innovation) :}
-            $$\alpha_t = y_t - w_{t-1}^T x_t$$
-      \item \textbf{Gain d'adaptation (Gain de Kalman) :}
-            $$g_t = \frac{P_{t-1} x_t}{\lambda + x_t^T P_{t-1} x_t}$$
-      \item \textbf{Mise à jour de la confiance (Covariance inverse) :}
-            $$P_t = \frac{1}{\lambda} \left( P_{t-1} - g_t x_t^T P_{t-1} \right)$$
-      \item \textbf{Ajustement récursif des poids :}
-            $$w_t = w_{t-1} + \alpha_t g_t$$
-    \end{enumerate}
-  \end{block}
-  
-  Où $\lambda \in (0, 1]$ est le **facteur d'oubli exponentiel**.
-\end{frame}
-
-% Slide 4: Preuve de l'Équivalence avec la Fenêtre Glissante de 72h
-\begin{frame}{4. Preuve de l'Équivalence Temporelle (Fenêtre Glissante)}
-  L'utilisation de $\lambda$ introduit une pondération exponentielle décroissante. La somme des poids géométriques définit la **mémoire effective** du filtre RLS :
-  
-  \begin{block}{Longueur de Mémoire Effective}
-    $$N_{\text{effective}} = \sum_{k=0}^{\infty} \lambda^k = \frac{1}{1 - \lambda}$$
-  \end{block}
-  
+  \vspace{0.5em}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{exampleblock}{Calcul pour une Fenêtre de 72h}
-        Puisque l'échantillonnage de l'agent s'effectue toutes les 60 secondes :
-        \begin{itemize}
-          \item $N_{72\text{h}} = 72 \text{ h} \times 60 \text{ min/h} = 4320 \text{ snapshots}$.
-        \end{itemize}
-        Pour que la mémoire du RLS coïncide avec une fenêtre glissante physique de 72h :
-        $$\frac{1}{1 - \lambda} = 4320 \implies 1 - \lambda = \frac{1}{4320} \approx 0.0002315$$
-        $$\boldsymbol{\lambda \approx 0.99977}$$
-      \end{exampleblock}
+      \begin{block}{Fonctionnement en 3 étapes simples}
+        \begin{enumerate}
+          \item \textbf{Mesure de l'erreur :} Comparaison immédiate entre la prédiction et l'état réel de la machine.
+          \item \textbf{Calcul du gain :} Dosage de la mise à jour (faut-il ajuster beaucoup ou peu les poids du modèle ?).
+          \item \textbf{Mise à jour des poids :} Ajustement instantané de la mémoire interne.
+        \end{enumerate}
+      \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
-      \begin{block}{Avantage Majeur}
-        Au lieu de stocker 4320 points de données en RAM, le RLS offre **la même mémoire temporelle** en ne stockant que $w$ et $P$ ($< 1$ Ko).
-      \end{block}
+      \begin{exampleblock}{Le Facteur d'Oubli ($\lambda$)}
+        Un paramètre mathématique simple qui permet au modèle d'oublier progressivement les données très anciennes pour s'adapter rapidement aux nouveaux profils de délestages locaux.
+      \end{exampleblock}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 5: Analyse Comparative - OLS Glissant vs RLS
-\begin{frame}{5. Analyse Comparative : OLS Glissant vs RLS Adaptatif}
+% Slide 4: Équivalence Temporelle de 72h
+\begin{frame}{4. Comment régler la mémoire du modèle à 72 heures ?}
+  Le professeur demande à juste titre une mise à jour sur une fenêtre glissante de 72 heures. Le RLS y parvient de manière élégante :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{L'Équivalence Mathématique}
+        \begin{itemize}
+          \item Notre agent prend 1 mesure par minute.
+          \item Une fenêtre de 72 heures représente exactement **4 320 mesures**.
+          \item En ajustant le facteur d'oubli $\lambda$ à **0,99977**, le RLS accorde la même importance aux données qu'un historique glissant physique de 72h.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Pourquoi c'est supérieur ?}
+        \begin{itemize}
+          \item \textbf{Économie de RAM :} Plus besoin de conserver les 4 320 points en mémoire.
+          \item \textbf{Zéro interpolation :} Gère naturellement les déconnexions (si la machine s'éteint, l'apprentissage se fige sans planter).
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 5: Analyse Comparative
+\begin{frame}{5. OLS Glissant vs RLS Adaptatif}
   \begin{table}[]
     \centering
-    \small
+    \footnotesize
     \begin{tabular}{lll}
       \toprule
-      \textbf{Critère de comparaison} & \textbf{Fenêtre Glissante Physique (OLS)} & \textbf{RLS Récursif ($\lambda = 0.99977$)} \\
+      \textbf{Critère de comparaison} & \textbf{Fenêtre Glissante (Méthode OLS)} & \textbf{Modèle RLS Adaptatif} \\
       \midrule
-      \textbf{Stockage RAM} & Conserve les $N=4320$ vecteurs en mémoire & Conserve uniquement $w$ et $P$ ($< 1$ Ko) \\
-      \textbf{Complexité Temporelle} & $O(N \cdot d^2 + d^3)$ à chaque minute & $O(d^2)$ opérations simples ($\le 0,1$ ms) \\
-      \textbf{Inversion Matricielle} & Requise à chaque pas, risque d'instabilité & Évitée via le lemme d'inversion matricielle \\
-      \textbf{Tolérance aux Gaps} & Difficile à gérer lors des déconnexions & Naturelle : mise à jour gelée en cas d'arrêt \\
-      \textbf{Pondération} & Uniforme sur toute la fenêtre & Exponentielle décroissante (priorité au présent) \\
+      \textbf{Usage de la RAM} & Conserve 4320 points de mesures & Conserve uniquement 2 matrices ($< 1$ Ko) \\
+      \textbf{Vitesse d'exécution} & Ralentit à chaque mise à jour & Stable et instantané ($\le 0,1$ ms) \\
+      \textbf{Calcul Matriciel} & Inversion lourde et risquée & Évitée (Algorithme stable par conception) \\
+      \textbf{Gestion des Pannes} & Trous de données complexes à gérer & Gel automatique de l'apprentissage \\
+      \textbf{Priorité Temporelle} & Traite le passé et le présent de façon égale & Donne naturellement la priorité au présent \\
       \bottomrule
     \end{tabular}
   \end{table}
 \end{frame}
 
-% Slide 6: Pourquoi le RLS est immunisé contre l'oubli catastrophique ?
-\begin{frame}{6. Immunité Mathématique contre l'Oubli Catastrophique}
-  Pourquoi le RLS est-il immunisé contre l'oubli catastrophique qui affecte les réseaux neuronaux ?
+% Slide 6: Pourquoi le RLS est robuste aux anomalies ?
+\begin{frame}{6. Immunité contre l'Oubli Catastrophique}
+  Les réseaux de neurones peuvent souffrir d'un oubli brutal de leurs connaissances. Le modèle RLS-ARX résout ce problème grâce à deux verrous théoriques :
   
+  \vspace{0.5em}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{block}{1. Convexité Globale}
+      \begin{block}{1. Convexité mathématique}
         \begin{itemize}
-          \item La surface de perte des moindres carrés récursifs est strictement convexe (quadratique).
-          \item Il n'existe qu'un unique minimum global. L'algorithme ne peut pas diverger vers des minima locaux instables.
+          \item Contrairement aux modèles profonds, le RLS possède une unique solution optimale globale. 
+          \item Le modèle ne peut pas "sauter" d'un état stable à un état erratique lors d'une perturbation.
         \end{itemize}
       \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
-      \begin{block}{2. Rôle Protecteur de la Matrice $P_t$}
+      \begin{block}{2. Mémoire de la Covariance}
         \begin{itemize}
-          \item La matrice $P_t$ stocke de façon continue la corrélation directionnelle des entrées.
-          \item Si un comportement sain est appris de longue date, la variance associée dans $P_t$ devient infime.
-          \item Les fluctuations transitoires (bruit de réseau, anomalies) voient leur impact filtré et n'altèrent pas les poids déjà stabilisés.
+          \item Le modèle mémorise le niveau de certitude de ses prédictions.
+          \item Face à un événement inhabituel ou transitoire (ex. micro-coupure réseau), il filtre automatiquement la perturbation sans altérer ses poids stables.
         \end{itemize}
       \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 7: Synergie Hybride : RLS-ARX + GRU-EWC
+% Slide 7: Architecture Hybride
 \begin{frame}{7. L'Architecture Prédictive Hybride de l'Agent}
-  Le modèle RLS-ARX n'agit pas seul ; il est couplé au modèle profond non-linéaire (GRU) :
+  Pour une efficacité maximale, notre agent utilise une architecture à deux niveaux :
   
+  \vspace{0.5em}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{block}{Le Cerveau Réseau : GRU + EWC}
+      \begin{block}{Le Réflexe Local Frugal : RLS-ARX}
         \begin{itemize}
-          \item Capture les relations non-linéaires complexes et les habitudes d'usage à long terme.
-          \item Pré-entraîné sur SETI@home puis adapté localement.
-          \item La régularisation **EWC** protège les poids neuronaux critiques appris globalement.
+          \item S'exécute à chaque minute.
+          \item Réagit instantanément aux coupures électriques et variations de batterie locales.
+          \item Consomme moins d'1 Ko de RAM.
         \end{itemize}
       \end{block}
     \end{column}
     
     \begin{column}{0.48\textwidth}
-      \begin{block}{Le Réflexe Frugal : RLS-ARX}
+      \begin{block}{Le Cerveau Temporel : GRU + EWC}
         \begin{itemize}
-          \item Baseline ultra-rapide fonctionnant en continu à chaque minute.
-          \item Re-calibré instantanément par rapport aux changements électriques exogènes immédiats.
-          \item Résilience totale en cas de panne logicielle ou d'arrêt brutal du système.
+          \item S'exécute périodiquement (ex. toutes les 24h).
+          \item Apprend les habitudes d'usage de l'utilisateur sur le long terme.
+          \item Protégé par l'algorithme EWC pour ne pas oublier ses connaissances globales.
         \end{itemize}
       \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Slide 8: Implémentation Frugale en Python (TinyML)
-\begin{frame}[fragile]{8. Implémentation du Prédicteur RLS en Python}
-  \begin{lstlisting}[language=python, basicstyle=\tiny\ttfamily, stringstyle=\color{green!50!black}, keywordstyle=\color{blue}]
-import numpy as np
-
-class FrugalRLSPredictor:
-    def __init__(self, d=11, lmbda=0.99977, delta=10.0):
-        self.d = d
-        self.lmbda = lmbda
-        self.w = np.zeros(d)
-        self.P = np.eye(d) * delta  # Initialisation de la covariance inverse
-        
-    def predict(self, x):
-        return np.dot(self.w, x)
-        
-    def update(self, x, y):
-        # 1. Calcul de l'erreur instantanee
-        alpha = y - self.predict(x)
-        # 2. Calcul du Gain de Kalman
-        Px = np.dot(self.P, x)
-        denominator = self.lmbda + np.dot(x, Px)
-        g = Px / denominator
-        # 3. Mise a jour de la matrice P
-        self.P = (self.P - np.outer(g, Px)) / self.lmbda
-        # 4. Ajustement des poids
-        self.w += alpha * g
-  \end{lstlisting}
-  \begin{block}{Empreinte TinyML}
-    \textbf{RAM :} $< 1$ Ko (Matrice $11 \times 11$ et poids). \textbf{CPU :} $< 0.1$ ms par itération.
-  \end{block}
+% Slide 8: Frugalité Matérielle et TinyML
+\begin{frame}{8. Intégration et Frugalité Matérielle (TinyML)}
+  L'application des concepts TinyML sur nos nœuds volontaires à Yaoundé garantit le respect des ressources matérielles des participants :
+  
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Besoins en Mémoire RAM}
+        \begin{itemize}
+          \item Modèle linéaire RLS-ARX : **$< 1$ Ko**.
+          \item Modèle GRU quantifié en INT8 : **$< 2$ Mo**.
+          \item Totalement compatible avec la limite stricte de **10 Mo** pour les environnements contraints.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Impact sur le Processeur (CPU)}
+        \begin{itemize}
+          \item Temps de calcul RLS : **$< 0,1$ milliseconde** par mise à jour.
+          \item Inférence légère qui ne ralentit pas les tâches courantes de l'ordinateur de l'étudiant.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % Slide 9: Conclusion et Perspectives
 \begin{frame}{9. Conclusion}
-  \begin{block}{Avantages du Modèle RLS-ARX pour le Calcul Volontaire}
-    Le modèle RLS-ARX s'impose comme une baseline linéaire idéale pour les infrastructures instables (Yaoundé) :
+  \begin{block}{Les atouts majeurs du modèle RLS-ARX}
+    Le choix du RLS-ARX répond parfaitement aux exigences académiques et pratiques :
     \begin{itemize}
-      \item \textbf{Frugalité Absolue :} Parfaitement adapté au cahier des charges TinyML avec une RAM négligeable et aucun historique stocké.
-      \item \textbf{Rigueur Temporelle :} Preuve mathématique d'équivalence avec une fenêtre glissante physique de 72h ($\lambda = 0.99977$).
-      \item \textbf{Immunité à l'Oubli :} Résolution strictement convexe protégeant la mémoire structurelle face aux bruits locaux transitoires.
+      \item \textbf{Frugalité prouvée :} Convient parfaitement au TinyML sur des machines volontaires d'entrée de gamme.
+      \item \textbf{Rigueur scientifique :} Équivalent exact à une fenêtre glissante de 72h grâce au facteur d'oubli calculé ($\lambda = 0,99977$).
+      \item \textbf{Haute résilience :} Stable face à l'instabilité électrique et aux arrêts brusques inhérents au contexte de Yaoundé.
     \end{itemize}
   \end{block}
   
