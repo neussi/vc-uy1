@@ -140,7 +140,64 @@
   \end{columns}
 \end{frame}
 
-% Slide 5: Le Workflow d'Entraînement pas à pas
+% Slide 5: Structure Détaillée du Modèle GRU et Quantification INT8
+\begin{frame}{2. Structure Détaillée du Modèle GRU et Quantification}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \begin{block}{Équations de la Cellule GRU}
+        \begin{itemize}
+          \item \textbf{Porte de mise à jour $z_t$ :}
+                $$z_t = \sigma(W_z x_t + U_z h_{t-1} + b_z)$$
+          \item \textbf{Porte de réinitialisation $r_t$ :}
+                $$r_t = \sigma(W_r x_t + U_r h_{t-1} + b_r)$$
+          \item \textbf{Candidat d'état caché $\tilde{h}_t$ :}
+                $$\tilde{h}_t = \tanh(W_h x_t + U_h (r_t \odot h_{t-1}) + b_h)$$
+          \item \textbf{Nouvel état caché $h_t$ :}
+                $$h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$$
+        \end{itemize}
+      \end{block}
+      
+      \begin{block}{Formule de Quantification INT8}
+        $$W_{\text{INT8}} = \text{round}\left(\frac{W_{\text{Float32}}}{S}\right) + Z$$
+        {\tiny ($S$ : Facteur d'échelle, $Z$ : Point zéro de décalage)}
+      \end{block}
+    \end{column}
+    
+    \begin{column}{0.42\textwidth}
+      \begin{exampleblock}{Architecture des Couches}
+        \centering
+        \vspace{0.2em}
+        \begin{tikzpicture}[scale=0.55, every node/.style={transform shape},
+            layer/.style={rectangle, draw=blue!50!black, fill=blue!10, rounded corners, minimum width=4.2cm, minimum height=0.6cm, align=center, font=\scriptsize},
+            quant/.style={rectangle, draw=red!50!black, fill=red!5, dashed, rounded corners, minimum width=4.6cm, minimum height=2.3cm, align=center},
+            arrow/.style={-latex, thick}]
+            
+            % Nodes
+            \node[layer] (in) {Séquence d'entrée $X_{t-L \dots t}$ \\ {\tiny (11 variables $\times$ Longueur $L$)}};
+            
+            % Quantization boundary
+            \node[quant] (qbox) [below=0.4cm of in] {};
+            \node[font=\tiny\color{red!80!black}\bfseries, above right=-0.1cm and -2.2cm of qbox] {Modèle Quantifié INT8 (TinyML)};
+            
+            \node[layer, fill=red!10, draw=red!50!black] (gru) [below=0.6cm of in] {Couche GRU (32 unités) \\ {\tiny Inférence récursive en INT8}};
+            \node[layer, fill=red!10, draw=red!50!black] (dense) [below=0.7cm of gru] {Couche Dense Projection \\ {\tiny Produit matriciel INT8}};
+            
+            \node[layer, fill=green!10, draw=green!50!black] (out) [below=0.5cm of dense] {Sortie $\hat{y}_{t+h} \in [0, 1]$ \\ {\tiny (Probabilité de disponibilité)}};
+            
+            % Recurrent loop on GRU
+            \path (gru.east) edge [loop right, looseness=2.5, -latex, thick] node [font=\tiny, right] {$h_{t-1}$} (gru.east);
+            
+            % Connections
+            \draw[arrow] (in) -- (gru);
+            \draw[arrow] (gru) -- (dense);
+            \draw[arrow] (dense) -- (out);
+        \end{tikzpicture}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Slide 6: Le Workflow d'Entraînement pas à pas
 \begin{frame}{3. Le Workflow Technique d'Entraînement}
   Le passage du modèle de la phase d'apprentissage globale à l'exécution en ligne locale suit 5 étapes clés :
   
